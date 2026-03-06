@@ -1,0 +1,2070 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MV FLEET OS</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-primary: #0f1117;
+  --bg-secondary: #161b27;
+  --bg-card: #1c2333;
+  --bg-hover: #232d42;
+  --border: #2a3550;
+  --border-light: #334166;
+  --accent-blue: #4a90d9;
+  --accent-teal: #38b2ac;
+  --accent-green: #48bb78;
+  --accent-amber: #ed8936;
+  --accent-red: #fc8181;
+  --accent-purple: #9f7aea;
+  --text-primary: #e2e8f0;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --text-heading: #f0f4ff;
+  --shadow: 0 4px 24px rgba(0,0,0,0.4);
+  --radius: 10px;
+  --radius-sm: 6px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg-primary);color:var(--text-primary);min-height:100vh;overflow-x:hidden;}
+/* SCROLLBAR */
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-track{background:var(--bg-primary);}
+::-webkit-scrollbar-thumb{background:var(--border-light);border-radius:3px;}
+
+/* LOGIN */
+#login-screen{position:fixed;inset:0;background:var(--bg-primary);display:flex;align-items:center;justify-content:center;z-index:9999;}
+.login-box{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:48px 40px;width:360px;text-align:center;box-shadow:var(--shadow);}
+.login-logo{font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;color:var(--accent-blue);letter-spacing:3px;margin-bottom:4px;}
+.login-sub{font-size:12px;color:var(--text-muted);letter-spacing:2px;margin-bottom:32px;}
+.login-box input{width:100%;padding:12px 16px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:15px;margin-bottom:12px;outline:none;transition:border-color .2s;}
+.login-box input:focus{border-color:var(--accent-blue);}
+.login-btn{width:100%;padding:13px;background:var(--accent-blue);border:none;border-radius:var(--radius-sm);color:#fff;font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:600;letter-spacing:1px;cursor:pointer;transition:opacity .2s;}
+.login-btn:hover{opacity:.85;}
+.login-err{color:var(--accent-red);font-size:13px;margin-top:10px;min-height:18px;}
+
+/* LAYOUT */
+#app{display:none;flex-direction:column;min-height:100vh;}
+.topbar{background:var(--bg-secondary);border-bottom:1px solid var(--border);padding:0 16px;display:flex;align-items:center;height:56px;gap:12px;position:sticky;top:0;z-index:200;}
+.topbar-logo{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:var(--accent-blue);letter-spacing:2px;white-space:nowrap;flex-shrink:0;}
+.topbar-nav{display:flex;gap:2px;flex:1;overflow-x:auto;scrollbar-width:none;}
+.topbar-nav::-webkit-scrollbar{display:none;}
+.nav-btn{padding:6px 11px;border:none;background:transparent;color:var(--text-secondary);font-family:'IBM Plex Sans',sans-serif;font-size:12px;font-weight:500;border-radius:var(--radius-sm);cursor:pointer;white-space:nowrap;transition:all .15s;flex-shrink:0;}
+.nav-btn:hover{background:var(--bg-hover);color:var(--text-primary);}
+.nav-btn.active{background:var(--accent-blue);color:#fff;}
+.topbar-right{display:flex;gap:8px;align-items:center;flex-shrink:0;}
+.topbar-date{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-muted);}
+.icon-btn{width:34px;height:34px;border:1px solid var(--border);background:transparent;border-radius:var(--radius-sm);color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all .15s;}
+.icon-btn:hover{background:var(--bg-hover);color:var(--text-primary);}
+/* MOBILE BOTTOM NAV */
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--bg-secondary);border-top:1px solid var(--border);z-index:200;padding:0 4px;padding-bottom:env(safe-area-inset-bottom,0);}
+.bottom-nav-inner{display:flex;justify-content:space-around;align-items:stretch;height:58px;}
+.bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:none;background:transparent;color:var(--text-muted);font-size:10px;font-family:'IBM Plex Sans',sans-serif;font-weight:500;cursor:pointer;padding:4px 2px;border-radius:var(--radius-sm);transition:all .15s;min-width:0;}
+.bnav-btn .bi{font-size:18px;line-height:1;}
+.bnav-btn.active{color:var(--accent-blue);}
+.bnav-btn span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:100%;text-align:center;}
+#mobile-more-menu{position:fixed;bottom:66px;right:8px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:8px;z-index:300;display:none;flex-direction:column;gap:2px;min-width:160px;box-shadow:var(--shadow);}
+#mobile-more-menu.open{display:flex;}
+.more-menu-btn{padding:10px 14px;border:none;background:transparent;color:var(--text-secondary);font-size:13px;border-radius:var(--radius-sm);cursor:pointer;text-align:left;white-space:nowrap;transition:all .15s;}
+.more-menu-btn:hover,.more-menu-btn.active{background:var(--bg-hover);color:var(--accent-blue);}
+.main-content{flex:1;padding:20px;}
+@media(max-width:900px){
+  .topbar-date{display:none;}
+}
+@media(max-width:768px){
+  .main-content{padding:12px 12px 76px;}
+  .topbar-nav{display:none;}
+  .bottom-nav{display:block;}
+  .topbar{height:50px;padding:0 12px;}
+  .topbar-logo{font-size:15px;}
+}
+@media(max-width:480px){
+  .main-content{padding:10px 10px 76px;}
+  .card{padding:14px;}
+  .modal-body{padding:14px 16px;}
+  .modal-header{padding:14px 16px 12px;}
+  .modal-footer{padding:12px 16px;flex-wrap:wrap;}
+  .modal-footer .btn{flex:1;justify-content:center;}
+  .section-header{flex-wrap:wrap;gap:8px;}
+}
+
+/* PAGES */
+.page{display:none;}
+.page.active{display:block;}
+
+/* CARDS */
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;}
+.card-title{font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:600;color:var(--text-heading);letter-spacing:.5px;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.card-title .dot{width:8px;height:8px;border-radius:50%;}
+
+/* GRID */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+.grid-5{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;}
+@media(max-width:1024px){.grid-5{grid-template-columns:repeat(3,1fr);}.grid-4{grid-template-columns:1fr 1fr;}}
+@media(max-width:768px){.grid-2,.grid-3,.grid-4,.grid-5{grid-template-columns:1fr 1fr;}}
+@media(max-width:480px){.grid-2,.grid-3,.grid-4,.grid-5{grid-template-columns:1fr;}}
+/* FORM ROWS */
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+@media(max-width:600px){.form-row,.form-row-3{grid-template-columns:1fr;}}
+
+/* STAT CARDS */
+.stat-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;}
+.stat-label{font-size:11px;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}
+.stat-value{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:500;color:var(--text-heading);}
+.stat-value.green{color:var(--accent-green);}
+.stat-value.red{color:var(--accent-red);}
+.stat-value.amber{color:var(--accent-amber);}
+.stat-value.blue{color:var(--accent-blue);}
+.stat-sub{font-size:11px;color:var(--text-muted);margin-top:4px;}
+
+/* FORMS */
+.form-group{margin-bottom:14px;}
+.form-label{font-size:12px;color:var(--text-secondary);margin-bottom:5px;display:block;letter-spacing:.3px;}
+.form-input,.form-select,.form-textarea{width:100%;padding:9px 12px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:14px;font-family:'IBM Plex Sans',sans-serif;outline:none;transition:border-color .2s;}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--accent-blue);}
+.form-select option{background:var(--bg-secondary);}
+.form-textarea{resize:vertical;min-height:72px;}
+
+/* BUTTONS */
+.btn{padding:9px 18px;border:none;border-radius:var(--radius-sm);font-family:'IBM Plex Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:6px;}
+.btn-primary{background:var(--accent-blue);color:#fff;}
+.btn-primary:hover{opacity:.85;}
+.btn-success{background:var(--accent-green);color:#fff;}
+.btn-success:hover{opacity:.85;}
+.btn-danger{background:var(--accent-red);color:#fff;}
+.btn-danger:hover{opacity:.85;}
+.btn-amber{background:var(--accent-amber);color:#fff;}
+.btn-amber:hover{opacity:.85;}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text-secondary);}
+.btn-outline:hover{border-color:var(--accent-blue);color:var(--accent-blue);}
+.btn-sm{padding:6px 12px;font-size:12px;}
+.btn-xs{padding:4px 9px;font-size:11px;}
+
+/* TABLE */
+.table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{background:var(--bg-secondary);color:var(--text-muted);font-size:11px;font-weight:500;letter-spacing:.8px;text-transform:uppercase;padding:10px 12px;text-align:left;border-bottom:1px solid var(--border);}
+td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--text-primary);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(74,144,217,.04);}
+.td-mono{font-family:'IBM Plex Mono',monospace;font-size:12px;}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500;}
+.badge-green{background:rgba(72,187,120,.15);color:var(--accent-green);}
+.badge-red{background:rgba(252,129,129,.15);color:var(--accent-red);}
+.badge-amber{background:rgba(237,137,54,.15);color:var(--accent-amber);}
+.badge-blue{background:rgba(74,144,217,.15);color:var(--accent-blue);}
+.badge-teal{background:rgba(56,178,172,.15);color:var(--accent-teal);}
+.badge-purple{background:rgba(159,122,234,.15);color:var(--accent-purple);}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:1000;display:none;align-items:flex-start;justify-content:center;padding:12px;overflow-y:auto;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;width:100%;max-width:640px;margin:auto;box-shadow:var(--shadow);}
+.modal-lg{max-width:860px;}
+.modal-xl{max-width:1100px;}
+.modal-header{padding:20px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--bg-card);z-index:1;border-radius:14px 14px 0 0;}
+.modal-title{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:600;color:var(--text-heading);letter-spacing:.5px;}
+.modal-close{width:30px;height:30px;border:none;background:transparent;color:var(--text-muted);font-size:18px;cursor:pointer;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.modal-close:hover{background:var(--bg-hover);color:var(--text-primary);}
+.modal-body{padding:20px 24px;}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end;}
+
+/* SECTION HEADER */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.section-title{font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:600;color:var(--text-heading);letter-spacing:.5px;}
+
+/* TABS */
+.tabs{display:flex;gap:4px;background:var(--bg-secondary);padding:4px;border-radius:var(--radius-sm);width:fit-content;margin-bottom:20px;}
+.tab-btn{padding:7px 16px;border:none;background:transparent;color:var(--text-secondary);font-size:13px;font-weight:500;border-radius:4px;cursor:pointer;transition:all .15s;}
+.tab-btn.active{background:var(--accent-blue);color:#fff;}
+
+/* DIVIDER */
+.divider{border:none;border-top:1px solid var(--border);margin:16px 0;}
+
+/* ALERT */
+.alert{padding:10px 14px;border-radius:var(--radius-sm);font-size:13px;margin-bottom:12px;}
+.alert-red{background:rgba(252,129,129,.1);border:1px solid rgba(252,129,129,.3);color:var(--accent-red);}
+.alert-green{background:rgba(72,187,120,.1);border:1px solid rgba(72,187,120,.3);color:var(--accent-green);}
+.alert-amber{background:rgba(237,137,54,.1);border:1px solid rgba(237,137,54,.3);color:var(--accent-amber);}
+.alert-blue{background:rgba(74,144,217,.1);border:1px solid rgba(74,144,217,.3);color:var(--accent-blue);}
+
+/* PROGRESS */
+.progress-bar{height:6px;background:var(--bg-secondary);border-radius:3px;overflow:hidden;}
+.progress-fill{height:100%;border-radius:3px;transition:width .3s;}
+
+/* VEHICLE CARD */
+.vehicle-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;cursor:pointer;transition:all .2s;}
+.vehicle-card:hover{border-color:var(--accent-blue);box-shadow:0 0 0 1px var(--accent-blue);}
+.vehicle-card.selected{border-color:var(--accent-blue);box-shadow:0 0 0 2px var(--accent-blue);}
+.vehicle-num{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:var(--text-heading);letter-spacing:1px;}
+.vehicle-status{font-size:11px;margin-top:4px;}
+
+/* TOASTS */
+#toast-container{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;}
+.toast{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 16px;font-size:13px;box-shadow:var(--shadow);animation:slideIn .3s ease;max-width:320px;}
+.toast.success{border-left:3px solid var(--accent-green);color:var(--accent-green);}
+.toast.error{border-left:3px solid var(--accent-red);color:var(--accent-red);}
+.toast.info{border-left:3px solid var(--accent-blue);color:var(--accent-blue);}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0;}to{transform:translateX(0);opacity:1;}}
+
+/* INVOICE PRINT */
+@media print{
+  body{background:#fff;color:#000;}
+  .topbar,.nav-btn,#toast-container,.btn,.modal-overlay{display:none!important;}
+  .invoice-print{display:block!important;}
+  .no-print{display:none!important;}
+}
+
+/* MISC */
+.text-right{text-align:right;}
+.text-center{text-align:center;}
+.text-green{color:var(--accent-green);}
+.text-red{color:var(--accent-red);}
+.text-amber{color:var(--accent-amber);}
+.text-blue{color:var(--accent-blue);}
+.text-muted{color:var(--text-muted);}
+.text-mono{font-family:'IBM Plex Mono',monospace;}
+.mt-8{margin-top:8px;}
+.mt-12{margin-top:12px;}
+.mt-16{margin-top:16px;}
+.mt-20{margin-top:20px;}
+.mb-8{margin-bottom:8px;}
+.mb-12{margin-bottom:12px;}
+.mb-16{margin-bottom:16px;}
+.gap-8{gap:8px;}
+.flex{display:flex;}
+.flex-col{flex-direction:column;}
+.items-center{align-items:center;}
+.justify-between{justify-content:space-between;}
+.w-full{width:100%;}
+.hidden{display:none;}
+.editable-cell{background:transparent;border:none;color:var(--text-primary);font-family:'IBM Plex Mono',monospace;font-size:12px;width:80px;padding:2px 4px;border-radius:3px;outline:none;}
+.editable-cell:focus{background:var(--bg-secondary);border:1px solid var(--accent-blue);}
+input[type=number]::-webkit-inner-spin-button{opacity:.5;}
+.required-note{font-size:11px;color:var(--accent-red);margin-top:3px;}
+.inline-edit{cursor:pointer;border-bottom:1px dashed var(--border-light);}
+.inline-edit:hover{color:var(--accent-blue);}
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">MV FLEET OS</div>
+    <div class="login-sub">FLEET MANAGEMENT SYSTEM</div>
+
+    <!-- Loading state while Firebase connects -->
+    <div id="fb-loading" style="padding:20px 0;color:var(--text-muted);font-size:13px;">
+      <div style="margin-bottom:10px">🔄 Connecting to database...</div>
+      <div style="width:100%;height:3px;background:var(--border);border-radius:2px;overflow:hidden">
+        <div style="height:100%;width:40%;background:var(--accent-blue);border-radius:2px;animation:loadBar 1.2s ease-in-out infinite alternate"></div>
+      </div>
+    </div>
+
+    <!-- Login form (hidden until Firebase ready) -->
+    <div id="login-form-inner" style="display:none">
+      <input type="text" id="login-user" placeholder="Username" autocomplete="off" onkeydown="if(event.key==='Enter')doLogin()">
+      <input type="password" id="login-pass" placeholder="Password" onkeydown="if(event.key==='Enter')doLogin()">
+      <button class="login-btn" onclick="doLogin()">SIGN IN</button>
+      <div class="login-err" id="login-err"></div>
+    </div>
+  </div>
+</div>
+<style>
+@keyframes loadBar{from{transform:translateX(-100%)}to{transform:translateX(250%)}}
+</style>
+
+<!-- MAIN APP -->
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-logo">⬡ MV FLEET OS</div>
+    <div class="topbar-nav">
+      <button class="nav-btn active" onclick="showPage('dashboard',this)">📊 Dashboard</button>
+      <button class="nav-btn" onclick="showPage('vehicles',this)">🚛 Vehicles</button>
+      <button class="nav-btn" onclick="showPage('trips',this)">🗺️ Trips</button>
+      <button class="nav-btn" onclick="showPage('expenses',this)">💸 Expenses</button>
+      <button class="nav-btn" onclick="showPage('billing',this)">🧾 Billing</button>
+      <button class="nav-btn" onclick="showPage('reports',this)">📈 Reports</button>
+      <button class="nav-btn" onclick="showPage('settings',this)">⚙️ Settings</button>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-date" id="topbar-date"></div>
+      <button class="icon-btn" onclick="doLogout()" title="Logout">⏻</button>
+    </div>
+  </div>
+
+  <!-- MOBILE BOTTOM NAV -->
+  <div class="bottom-nav">
+    <div class="bottom-nav-inner">
+      <button class="bnav-btn active" id="bnav-dashboard" onclick="showPage('dashboard',this)"><span class="bi">📊</span><span>Dashboard</span></button>
+      <button class="bnav-btn" id="bnav-vehicles" onclick="showPage('vehicles',this)"><span class="bi">🚛</span><span>Vehicles</span></button>
+      <button class="bnav-btn" id="bnav-trips" onclick="showPage('trips',this)"><span class="bi">🗺️</span><span>Trips</span></button>
+      <button class="bnav-btn" id="bnav-expenses" onclick="showPage('expenses',this)"><span class="bi">💸</span><span>Expenses</span></button>
+      <button class="bnav-btn" id="bnav-more" onclick="toggleMoreMenu()"><span class="bi">⋯</span><span>More</span></button>
+    </div>
+  </div>
+  <!-- MOBILE MORE MENU -->
+  <div id="mobile-more-menu">
+    <button class="more-menu-btn" id="mmenu-billing" onclick="showPage('billing',this);toggleMoreMenu()">🧾 Billing</button>
+    <button class="more-menu-btn" id="mmenu-reports" onclick="showPage('reports',this);toggleMoreMenu()">📈 Reports</button>
+    <button class="more-menu-btn" id="mmenu-settings" onclick="showPage('settings',this);toggleMoreMenu()">⚙️ Settings</button>
+    <button class="more-menu-btn" onclick="doLogout()">⏻ Logout</button>
+  </div>
+
+  <div class="main-content">
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="section-header">
+        <div class="section-title">Dashboard Overview</div>
+        <div class="flex gap-8 items-center">
+          <select class="form-select" style="width:160px" id="dash-month-sel" onchange="renderDashboard()">
+          </select>
+        </div>
+      </div>
+      <div id="dash-content"></div>
+    </div>
+
+    <!-- VEHICLES -->
+    <div class="page" id="page-vehicles">
+      <div class="section-header">
+        <div class="section-title">Fleet Vehicles</div>
+        <button class="btn btn-primary" onclick="openVehicleModal()">+ Add Vehicle</button>
+      </div>
+      <div id="vehicles-grid" class="grid-4"></div>
+      <!-- Vehicle detail panel -->
+      <div id="vehicle-detail" class="mt-16 hidden"></div>
+    </div>
+
+    <!-- TRIPS -->
+    <div class="page" id="page-trips">
+      <div class="section-header">
+        <div class="section-title">Trip Management</div>
+        <button class="btn btn-primary" onclick="openTripModal()">+ New Trip</button>
+      </div>
+      <div class="card mb-12">
+        <div class="flex gap-8 items-center" style="flex-wrap:wrap">
+          <select class="form-select" style="width:160px" id="trip-veh-filter" onchange="renderTripsTable()">
+            <option value="">All Vehicles</option>
+          </select>
+          <select class="form-select" style="width:160px" id="trip-month-filter" onchange="renderTripsTable()">
+            <option value="">All Months</option>
+          </select>
+          <select class="form-select" style="width:140px" id="trip-status-filter" onchange="renderTripsTable()">
+            <option value="">All Status</option>
+            <option value="active">Active</option>
+            <option value="completed">Completed</option>
+            <option value="maintenance">Maintenance</option>
+          </select>
+        </div>
+      </div>
+      <div class="card">
+        <div class="table-wrap" id="trips-table-wrap"></div>
+      </div>
+    </div>
+
+    <!-- EXPENSES -->
+    <div class="page" id="page-expenses">
+      <div class="section-header">
+        <div class="section-title">Expense Management</div>
+        <button class="btn btn-primary" onclick="openExpenseModal()">+ Add Expense</button>
+      </div>
+      <div class="card mb-12">
+        <div class="flex gap-8 items-center" style="flex-wrap:wrap">
+          <select class="form-select" style="width:160px" id="exp-veh-filter" onchange="renderExpensesTable()">
+            <option value="">All Vehicles</option>
+          </select>
+          <select class="form-select" style="width:160px" id="exp-month-filter" onchange="renderExpensesTable()">
+            <option value="">All Months</option>
+          </select>
+          <select class="form-select" style="width:160px" id="exp-type-filter" onchange="renderExpensesTable()">
+            <option value="">All Types</option>
+            <option value="diesel">Diesel</option>
+            <option value="driver_salary">Driver Salary</option>
+            <option value="route_adv">Route Advance</option>
+            <option value="loading">Loading Charges</option>
+            <option value="unloading">Unloading Charges</option>
+            <option value="fastag">FASTag</option>
+            <option value="parking">Parking</option>
+            <option value="food">Food (Driver)</option>
+            <option value="adblue">AdBlue</option>
+            <option value="maintenance">Maintenance</option>
+            <option value="other">Other/Misc</option>
+          </select>
+        </div>
+      </div>
+      <div class="card">
+        <div class="table-wrap" id="expenses-table-wrap"></div>
+      </div>
+    </div>
+
+    <!-- BILLING -->
+    <div class="page" id="page-billing">
+      <div class="section-header">
+        <div class="section-title">Billing & Invoices</div>
+        <button class="btn btn-primary" onclick="openBillingModal()">+ Generate Invoice</button>
+      </div>
+      <div id="billing-content"></div>
+    </div>
+
+    <!-- REPORTS -->
+    <div class="page" id="page-reports">
+      <div class="section-header">
+        <div class="section-title">Reports & Analytics</div>
+      </div>
+      <div id="reports-content"></div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="page" id="page-settings">
+      <div class="section-title mb-16">Settings</div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title"><span class="dot" style="background:var(--accent-blue)"></span>Change Password</div>
+          <div class="form-group">
+            <label class="form-label">Current Password</label>
+            <input type="password" class="form-input" id="old-pass">
+          </div>
+          <div class="form-group">
+            <label class="form-label">New Password</label>
+            <input type="password" class="form-input" id="new-pass">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Confirm New Password</label>
+            <input type="password" class="form-input" id="conf-pass">
+          </div>
+          <button class="btn btn-primary" onclick="changePassword()">Update Password</button>
+          <div id="pass-msg" class="mt-8" style="font-size:13px;"></div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="dot" style="background:var(--accent-teal)"></span>Billing Configuration</div>
+          <div class="form-group">
+            <label class="form-label">Fixed Cost Per Month (₹)</label>
+            <input type="number" class="form-input" id="cfg-fixed-cost" value="85000">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Variable Rate Per KM (₹)</label>
+            <input type="number" class="form-input" id="cfg-per-km" value="28">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Max Transit Time (hrs)</label>
+            <input type="number" class="form-input" id="cfg-transit-hrs" value="18">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Free Maintenance Days / Vehicle / Month</label>
+            <input type="number" class="form-input" id="cfg-maint-days" value="2">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Driver Food Allowance After 24hr Stop (₹/day)</label>
+            <input type="number" class="form-input" id="cfg-food-allow" value="300">
+          </div>
+          <button class="btn btn-primary" onclick="saveConfig()">Save Configuration</button>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="dot" style="background:var(--accent-amber)"></span>Customer Details</div>
+          <div class="form-group">
+            <label class="form-label">Customer Name</label>
+            <input type="text" class="form-input" id="cfg-customer-name">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Customer Address</label>
+            <textarea class="form-textarea" id="cfg-customer-addr" rows="3"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Customer GSTIN</label>
+            <input type="text" class="form-input" id="cfg-customer-gstin">
+          </div>
+          <button class="btn btn-primary" onclick="saveConfig()">Save</button>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="dot" style="background:var(--accent-green)"></span>Company Details</div>
+          <div class="form-group">
+            <label class="form-label">Your Company Name</label>
+            <input type="text" class="form-input" id="cfg-company-name" placeholder="Your Company / Proprietor Name">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Your Address</label>
+            <textarea class="form-textarea" id="cfg-company-addr" rows="3"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Your GSTIN</label>
+            <input type="text" class="form-input" id="cfg-company-gstin">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Bank / Payment Details</label>
+            <textarea class="form-textarea" id="cfg-bank-details" rows="2" placeholder="Bank Name, A/C No, IFSC, UPI etc."></textarea>
+          </div>
+          <button class="btn btn-primary" onclick="saveConfig()">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODALS -->
+<!-- Vehicle Modal -->
+<div class="modal-overlay" id="modal-vehicle">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="veh-modal-title">Add Vehicle</div>
+      <button class="modal-close" onclick="closeModal('modal-vehicle')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="veh-id">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Vehicle Number *</label>
+          <input type="text" class="form-input" id="veh-number" placeholder="e.g. MH12AB1234">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Vehicle Name / Label</label>
+          <input type="text" class="form-input" id="veh-name" placeholder="e.g. Truck 1">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Type / Model</label>
+          <input type="text" class="form-input" id="veh-model" placeholder="e.g. Tata Prima">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select class="form-select" id="veh-status">
+            <option value="active">Active</option>
+            <option value="maintenance">Maintenance</option>
+            <option value="idle">Idle</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notes</label>
+        <textarea class="form-textarea" id="veh-notes" rows="2"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-vehicle')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveVehicle()">Save Vehicle</button>
+    </div>
+  </div>
+</div>
+
+<!-- Trip Modal -->
+<div class="modal-overlay" id="modal-trip">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <div class="modal-title" id="trip-modal-title">New Trip</div>
+      <button class="modal-close" onclick="closeModal('modal-trip')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="trip-id">
+      <div class="form-row-3">
+        <div class="form-group">
+          <label class="form-label">Vehicle *</label>
+          <select class="form-select" id="trip-vehicle"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Trip / LR Number</label>
+          <input type="text" class="form-input" id="trip-lr" placeholder="LR No.">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select class="form-select" id="trip-status-inp">
+            <option value="active">Active / In Transit</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Loading Point</label>
+          <input type="text" class="form-input" id="trip-from" placeholder="Origin city/location">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Unloading Point</label>
+          <input type="text" class="form-input" id="trip-to" placeholder="Destination city/location">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Document Received (Loading) Date & Time *</label>
+          <input type="datetime-local" class="form-input" id="trip-doc-recv">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Loading Done Date & Time</label>
+          <input type="datetime-local" class="form-input" id="trip-loaded">
+        </div>
+      </div>
+      <div class="form-row" id="trip-unload-row">
+        <div class="form-group">
+          <label class="form-label">Vehicle Reached Unloading Point (Date & Time)</label>
+          <input type="datetime-local" class="form-input" id="trip-reached">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Unloading Done Date & Time</label>
+          <input type="datetime-local" class="form-input" id="trip-unloaded">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Total KM (for billing)</label>
+          <input type="number" class="form-input" id="trip-km" placeholder="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Billing Cycle</label>
+          <select class="form-select" id="trip-billing-cycle">
+            <option value="">Auto-detect</option>
+          </select>
+        </div>
+      </div>
+      <div id="transit-alert" class="alert alert-amber hidden">
+        ⚠️ Transit time exceeds 18 hrs! Reason is mandatory.
+      </div>
+      <div class="form-group" id="transit-reason-grp">
+        <label class="form-label">Transit Delay Reason <span id="transit-req-star" style="color:var(--accent-red);display:none">*</span></label>
+        <textarea class="form-textarea" id="trip-delay-reason" rows="2" placeholder="Explain if transit time > 18 hrs..."></textarea>
+        <div class="required-note hidden" id="transit-reason-err">This field is required when transit time exceeds 18 hrs.</div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">FASTag Amount (₹)</label>
+          <input type="number" class="form-input" id="trip-fastag" placeholder="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Loading Charges (₹)</label>
+          <input type="number" class="form-input" id="trip-loading-ch" placeholder="0">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Unloading Charges (₹)</label>
+          <input type="number" class="form-input" id="trip-unloading-ch" placeholder="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Notes</label>
+          <input type="text" class="form-input" id="trip-notes" placeholder="Any notes...">
+        </div>
+      </div>
+      <div id="trip-transit-info" class="mt-12"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-trip')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveTrip()">Save Trip</button>
+    </div>
+  </div>
+</div>
+
+<!-- Expense Modal -->
+<div class="modal-overlay" id="modal-expense">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="exp-modal-title">Add Expense</div>
+      <button class="modal-close" onclick="closeModal('modal-expense')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="exp-id">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Vehicle *</label>
+          <select class="form-select" id="exp-vehicle"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Expense Type *</label>
+          <select class="form-select" id="exp-type" onchange="onExpTypeChange()">
+            <option value="">Select Type</option>
+            <option value="diesel">Diesel</option>
+            <option value="driver_salary">Driver Salary</option>
+            <option value="route_adv">Route Advance (Per Trip)</option>
+            <option value="loading">Loading Charges</option>
+            <option value="unloading">Unloading Charges</option>
+            <option value="fastag">FASTag</option>
+            <option value="parking">Parking</option>
+            <option value="food">Food (Driver)</option>
+            <option value="adblue">AdBlue</option>
+            <option value="maintenance">Maintenance</option>
+            <option value="other">Other / Misc</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Date *</label>
+          <input type="date" class="form-input" id="exp-date">
+        </div>
+        <div class="form-group" id="exp-amount-grp">
+          <label class="form-label">Amount (₹) *</label>
+          <input type="number" class="form-input" id="exp-amount" placeholder="0" oninput="onAmountManualEdit()">
+        </div>
+      </div>
+
+      <!-- DIESEL SUBSECTION -->
+      <div id="diesel-subsection" class="hidden" style="background:rgba(74,144,217,0.07);border:1px solid rgba(74,144,217,0.25);border-radius:var(--radius-sm);padding:14px;margin-bottom:14px;">
+        <div style="font-size:11px;color:var(--accent-blue);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;font-weight:600;">⛽ Diesel Details</div>
+        <div class="form-row-3">
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label">Quantity (Litres) *</label>
+            <input type="number" class="form-input" id="diesel-qty" placeholder="0.00" step="0.01" oninput="calcFuelAmount('diesel')">
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label">Rate (₹/Litre) *</label>
+            <input type="number" class="form-input" id="diesel-rate" placeholder="0.00" step="0.01" oninput="calcFuelAmount('diesel')">
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label">Amount (₹)</label>
+            <input type="number" class="form-input" id="diesel-amount" placeholder="Auto / Override" step="0.01" oninput="onFuelAmountOverride('diesel')">
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:6px">Amount = Qty × Rate. You can override the final amount if needed.</div>
+      </div>
+
+      <!-- ADBLUE SUBSECTION -->
+      <div id="adblue-subsection" class="hidden" style="background:rgba(56,178,172,0.07);border:1px solid rgba(56,178,172,0.25);border-radius:var(--radius-sm);padding:14px;margin-bottom:14px;">
+        <div style="font-size:11px;color:var(--accent-teal);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;font-weight:600;">🔵 AdBlue Details</div>
+        <div class="form-row-3">
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label">Quantity (Litres) *</label>
+            <input type="number" class="form-input" id="adblue-qty" placeholder="0.00" step="0.01" oninput="calcFuelAmount('adblue')">
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label">Rate (₹/Litre) *</label>
+            <input type="number" class="form-input" id="adblue-rate" placeholder="0.00" step="0.01" oninput="calcFuelAmount('adblue')">
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label">Amount (₹)</label>
+            <input type="number" class="form-input" id="adblue-amount" placeholder="Auto / Override" step="0.01" oninput="onFuelAmountOverride('adblue')">
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:6px">Amount = Qty × Rate. You can override the final amount if needed.</div>
+      </div>
+
+      <!-- Food expense helper -->
+      <div id="food-helper" class="alert alert-blue hidden">
+        <b>Food Rule:</b> ₹300/day after every 24 hrs of no movement (after first 24 hrs stop). No food expense on loading day.
+      </div>
+      <!-- Maintenance day toggle -->
+      <div id="maint-helper" class="form-group hidden">
+        <label class="form-label">Count as Free Maintenance Day?</label>
+        <select class="form-select" id="exp-maint-free">
+          <option value="no">No — deduct from fix cost</option>
+          <option value="yes">Yes — use free day allowance</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Trip Reference (optional)</label>
+        <select class="form-select" id="exp-trip"></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description / Notes</label>
+        <textarea class="form-textarea" id="exp-notes" rows="2"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-expense')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveExpense()">Save Expense</button>
+    </div>
+  </div>
+</div>
+
+<!-- Billing Modal -->
+<div class="modal-overlay" id="modal-billing">
+  <div class="modal modal-xl">
+    <div class="modal-header">
+      <div class="modal-title">Generate Invoice</div>
+      <button class="modal-close" onclick="closeModal('modal-billing')">✕</button>
+    </div>
+    <div class="modal-body" id="billing-modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Billing Cycle *</label>
+          <select class="form-select" id="inv-cycle" onchange="loadCycleData()"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Invoice Number</label>
+          <input type="text" class="form-input" id="inv-number" placeholder="Auto or custom">
+        </div>
+      </div>
+      <div id="invoice-preview-area"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-billing')">Cancel</button>
+      <button class="btn btn-amber" onclick="previewInvoice()">Preview Invoice</button>
+      <button class="btn btn-success" onclick="saveInvoice()">Save Invoice</button>
+    </div>
+  </div>
+</div>
+
+<!-- Invoice View Modal -->
+<div class="modal-overlay" id="modal-invoice-view">
+  <div class="modal modal-xl">
+    <div class="modal-header">
+      <div class="modal-title">Invoice</div>
+      <div class="flex gap-8">
+        <button class="btn btn-outline btn-sm" onclick="printInvoice()">🖨️ Print</button>
+        <button class="modal-close" onclick="closeModal('modal-invoice-view')">✕</button>
+      </div>
+    </div>
+    <div class="modal-body" id="invoice-view-body"></div>
+  </div>
+</div>
+
+<!-- Transit Reason Modal -->
+<div class="modal-overlay" id="modal-transit-reason">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">⚠️ Transit Delay Explanation</div>
+      <button class="modal-close" onclick="closeModal('modal-transit-reason')">✕</button>
+    </div>
+    <div class="modal-body" id="transit-reason-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-transit-reason')">Close</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<!-- Firebase SDKs -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, set, get, push, remove, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBakLpWeaWwjRLX6wmZ2mLA55JKBVuUgY0",
+  authDomain: "fleet-management-e8a56.firebaseapp.com",
+  projectId: "fleet-management-e8a56",
+  storageBucket: "fleet-management-e8a56.firebasestorage.app",
+  messagingSenderId: "856277919486",
+  appId: "1:856277919486:web:dad4bda6e6672d5d2b27af",
+  databaseURL: "https://fleet-management-e8a56-default-rtdb.firebaseio.com"
+};
+
+try {
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  // Expose Firebase methods globally
+  window._db = db;
+  window._dbRef = ref;
+  window._dbSet = set;
+  window._dbGet = get;
+  window._dbPush = push;
+  window._dbRemove = remove;
+  window._dbOnValue = onValue;
+
+  // Initialize default password if not set, then signal ready
+  const passRef = ref(db, 'config/auth');
+  get(passRef).then(snap => {
+    if (!snap.exists()) {
+      set(passRef, { username: 'admin', password: 'MVFLEET2026' });
+    }
+    window._firebaseReady = true;
+    // Hide loading, show login
+    document.getElementById('fb-loading').style.display = 'none';
+    document.getElementById('login-form-inner').style.display = 'block';
+    // Focus username field
+    setTimeout(() => document.getElementById('login-user')?.focus(), 100);
+    // Start live data listener (deferred to ensure main script is parsed)
+    if (typeof loadAllData === 'function') {
+      loadAllData();
+    } else {
+      window.addEventListener('load', () => loadAllData());
+    }
+  }).catch(err => {
+    console.error('Firebase init error:', err);
+    document.getElementById('fb-loading').innerHTML =
+      '<div style="color:#fc8181;font-size:13px">⚠️ Firebase connection failed.<br>Check your database rules &amp; internet.</div>';
+  });
+} catch(e) {
+  console.error('Firebase setup error:', e);
+  document.getElementById('fb-loading').innerHTML =
+    '<div style="color:#fc8181;font-size:13px">⚠️ Firebase setup error: ' + e.message + '</div>';
+}
+</script>
+
+<script>
+// ==================== STATE ====================
+let STATE = {
+  vehicles: {},
+  trips: {},
+  expenses: {},
+  invoices: {},
+  config: {
+    fixedCost: 85000,
+    perKm: 28,
+    maxTransitHrs: 18,
+    freeMaintDays: 2,
+    foodAllow: 300,
+    customerName: '',
+    customerAddr: '',
+    customerGstin: '',
+    companyName: '',
+    companyAddr: '',
+    companyGstin: '',
+    bankDetails: '',
+    auth: { username: 'admin', password: 'MVFLEET2026' }
+  },
+  currentPage: 'dashboard',
+  isLoggedIn: false
+};
+
+// ==================== AUTH ====================
+async function doLogin() {
+  const u = document.getElementById('login-user').value.trim();
+  const p = document.getElementById('login-pass').value;
+  const err = document.getElementById('login-err');
+  const btn = document.querySelector('.login-btn');
+
+  if (!u || !p) { err.textContent = 'Enter username and password.'; return; }
+
+  // Check Firebase is ready
+  if (!window._db) { err.textContent = '⏳ Still connecting, please wait...'; return; }
+
+  btn.textContent = 'SIGNING IN...';
+  btn.disabled = true;
+  err.textContent = '';
+
+  try {
+    const snap = await window._dbGet(window._dbRef(window._db, 'config/auth'));
+    const auth = snap.exists() ? snap.val() : { username: 'admin', password: 'MVFLEET2026' };
+    if (u === auth.username && p === auth.password) {
+      STATE.isLoggedIn = true;
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('app').style.display = 'flex';
+      updateTopbarDate();
+      renderDashboard();
+      err.textContent = '';
+    } else {
+      err.textContent = '❌ Invalid username or password.';
+    }
+  } catch(e) {
+    console.error('Login error:', e);
+    err.textContent = '⚠️ Connection error: ' + (e.message || 'Check internet & Firebase rules.');
+  } finally {
+    btn.textContent = 'SIGN IN';
+    btn.disabled = false;
+  }
+}
+function doLogout() {
+  STATE.isLoggedIn = false;
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-pass').value = '';
+}
+async function changePassword() {
+  const op = document.getElementById('old-pass').value;
+  const np = document.getElementById('new-pass').value;
+  const cp = document.getElementById('conf-pass').value;
+  const msg = document.getElementById('pass-msg');
+  const snap = await window._dbGet(window._dbRef(window._db, 'config/auth'));
+  const auth = snap.val();
+  if (op !== auth.password) { msg.textContent = '❌ Current password wrong.'; msg.style.color = 'var(--accent-red)'; return; }
+  if (np.length < 6) { msg.textContent = '❌ New password must be 6+ chars.'; msg.style.color = 'var(--accent-red)'; return; }
+  if (np !== cp) { msg.textContent = '❌ Passwords do not match.'; msg.style.color = 'var(--accent-red)'; return; }
+  await window._dbSet(window._dbRef(window._db, 'config/auth'), { username: auth.username, password: np });
+  msg.textContent = '✅ Password updated successfully!'; msg.style.color = 'var(--accent-green)';
+  document.getElementById('old-pass').value = '';
+  document.getElementById('new-pass').value = '';
+  document.getElementById('conf-pass').value = '';
+}
+
+// ==================== DATA LOAD ====================
+function loadAllData() {
+  const db = window._db;
+  window._dbOnValue(window._dbRef(db, '/'), (snap) => {
+    const data = snap.val() || {};
+    STATE.vehicles = data.vehicles || {};
+    STATE.trips = data.trips || {};
+    STATE.expenses = data.expenses || {};
+    STATE.invoices = data.invoices || {};
+    const cfg = data.config || {};
+    if (cfg.fixedCost) STATE.config.fixedCost = cfg.fixedCost;
+    if (cfg.perKm) STATE.config.perKm = cfg.perKm;
+    if (cfg.maxTransitHrs) STATE.config.maxTransitHrs = cfg.maxTransitHrs;
+    if (cfg.freeMaintDays) STATE.config.freeMaintDays = cfg.freeMaintDays;
+    if (cfg.foodAllow) STATE.config.foodAllow = cfg.foodAllow;
+    if (cfg.customerName !== undefined) STATE.config.customerName = cfg.customerName;
+    if (cfg.customerAddr !== undefined) STATE.config.customerAddr = cfg.customerAddr;
+    if (cfg.customerGstin !== undefined) STATE.config.customerGstin = cfg.customerGstin;
+    if (cfg.companyName !== undefined) STATE.config.companyName = cfg.companyName;
+    if (cfg.companyAddr !== undefined) STATE.config.companyAddr = cfg.companyAddr;
+    if (cfg.companyGstin !== undefined) STATE.config.companyGstin = cfg.companyGstin;
+    if (cfg.bankDetails !== undefined) STATE.config.bankDetails = cfg.bankDetails;
+    // Refresh current page
+    if (STATE.isLoggedIn) refreshCurrentPage();
+    populateDropdowns();
+    loadSettingsForm();
+  });
+}
+
+function refreshCurrentPage() {
+  const p = STATE.currentPage;
+  if (p === 'dashboard') renderDashboard();
+  else if (p === 'vehicles') renderVehiclesGrid();
+  else if (p === 'trips') renderTripsTable();
+  else if (p === 'expenses') renderExpensesTable();
+  else if (p === 'billing') renderBillingPage();
+  else if (p === 'reports') renderReports();
+}
+
+function showPage(page, callerBtn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.bnav-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.more-menu-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  // Highlight correct nav buttons
+  document.querySelectorAll('.nav-btn').forEach(b => { if(b.textContent.toLowerCase().includes(page.replace('dashboard','dashboard').replace('vehicles','vehicle').replace('trips','trip').replace('expenses','expense').replace('billing','billing').replace('reports','report').replace('settings','setting'))) b.classList.add('active'); });
+  const bnavEl = document.getElementById('bnav-' + page);
+  if(bnavEl) bnavEl.classList.add('active');
+  else document.getElementById('bnav-more')?.classList.add('active');
+  const mmenuEl = document.getElementById('mmenu-' + page);
+  if(mmenuEl) mmenuEl.classList.add('active');
+  STATE.currentPage = page;
+  refreshCurrentPage();
+}
+function toggleMoreMenu() {
+  const m = document.getElementById('mobile-more-menu');
+  m.classList.toggle('open');
+}
+// Close more menu on outside click
+document.addEventListener('click', e => {
+  const menu = document.getElementById('mobile-more-menu');
+  const moreBtn = document.getElementById('bnav-more');
+  if(menu && menu.classList.contains('open') && !menu.contains(e.target) && e.target !== moreBtn && !moreBtn?.contains(e.target)) {
+    menu.classList.remove('open');
+  }
+});
+
+function updateTopbarDate() {
+  const d = new Date();
+  document.getElementById('topbar-date').textContent = d.toLocaleDateString('en-IN', {day:'2-digit',month:'short',year:'numeric'});
+}
+setInterval(updateTopbarDate, 60000);
+
+// ==================== HELPERS ====================
+function fmtINR(n) {
+  if (n === undefined || n === null || isNaN(n)) return '₹0';
+  return '₹' + Number(n).toLocaleString('en-IN', {minimumFractionDigits: 0, maximumFractionDigits: 0});
+}
+function fmtNum(n) { return Number(n || 0).toLocaleString('en-IN'); }
+function uid() { return Date.now().toString(36) + Math.random().toString(36).substr(2, 5); }
+function toast(msg, type = 'info') {
+  const c = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = 'toast ' + type;
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 3500);
+}
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+
+function getBillingCycles(year, month) {
+  // year: 2024, month: 0-11
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const label = new Date(year, month).toLocaleString('default', {month:'long', year:'numeric'});
+  if (daysInMonth === 30 || daysInMonth === 31) {
+    const c1Days = 15, c2Days = daysInMonth - 15;
+    return [
+      { id: `${year}-${String(month+1).padStart(2,'0')}-C1`, label: `${label} — Cycle 1 (1–15)`, year, month, cycle: 1, startDay: 1, endDay: 15, days: c1Days },
+      { id: `${year}-${String(month+1).padStart(2,'0')}-C2`, label: `${label} — Cycle 2 (16–${daysInMonth})`, year, month, cycle: 2, startDay: 16, endDay: daysInMonth, days: c2Days }
+    ];
+  } else if (daysInMonth === 28) {
+    return [
+      { id: `${year}-${String(month+1).padStart(2,'0')}-C1`, label: `${label} — Cycle 1 (1–15)`, year, month, cycle: 1, startDay: 1, endDay: 15, days: 15 },
+      { id: `${year}-${String(month+1).padStart(2,'0')}-C2`, label: `${label} — Cycle 2 (16–28)`, year, month, cycle: 2, startDay: 16, endDay: 28, days: 13 }
+    ];
+  } else { // 29
+    return [
+      { id: `${year}-${String(month+1).padStart(2,'0')}-C1`, label: `${label} — Cycle 1 (1–15)`, year, month, cycle: 1, startDay: 1, endDay: 15, days: 15 },
+      { id: `${year}-${String(month+1).padStart(2,'0')}-C2`, label: `${label} — Cycle 2 (16–29)`, year, month, cycle: 2, startDay: 16, endDay: 29, days: 14 }
+    ];
+  }
+}
+
+function getAllCycles() {
+  const cycles = [];
+  const now = new Date();
+  for (let y = now.getFullYear() - 1; y <= now.getFullYear() + 1; y++) {
+    for (let m = 0; m < 12; m++) {
+      getBillingCycles(y, m).forEach(c => cycles.push(c));
+    }
+  }
+  return cycles;
+}
+
+function getCycleForDate(dateStr) {
+  if (!dateStr) return null;
+  const d = new Date(dateStr);
+  const year = d.getFullYear(), month = d.getMonth(), day = d.getDate();
+  const cycles = getBillingCycles(year, month);
+  return cycles.find(c => day >= c.startDay && day <= c.endDay) || null;
+}
+
+function getTransitHours(trip) {
+  if (!trip.docRecv || !trip.reached) return null;
+  const start = new Date(trip.docRecv);
+  const end = new Date(trip.reached);
+  return (end - start) / 3600000;
+}
+
+function getVehicleArr() {
+  return Object.entries(STATE.vehicles).map(([id, v]) => ({id, ...v}));
+}
+
+function populateDropdowns() {
+  const vehs = getVehicleArr();
+  const opts = `<option value="">Select Vehicle</option>` + vehs.map(v => `<option value="${v.id}">${v.number || v.name || v.id}</option>`).join('');
+  ['trip-vehicle','exp-vehicle','exp-veh-filter','trip-veh-filter'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const wasAll = id.includes('filter');
+    el.innerHTML = wasAll ? `<option value="">All Vehicles</option>` + vehs.map(v => `<option value="${v.id}">${v.number || v.name || v.id}</option>`).join('') : opts;
+  });
+  // Trip select in expense
+  const tripEl = document.getElementById('exp-trip');
+  if (tripEl) {
+    const trips = Object.entries(STATE.trips).map(([id,t]) => ({id,...t}));
+    tripEl.innerHTML = `<option value="">None</option>` + trips.map(t => `<option value="${t.id}">${t.lr||t.id} — ${getVehicleName(t.vehicleId)}</option>`).join('');
+  }
+  // Month filters
+  const months = new Set();
+  [...Object.values(STATE.trips), ...Object.values(STATE.expenses)].forEach(item => {
+    if (item.date) months.add(item.date.substr(0,7));
+    if (item.docRecv) months.add(item.docRecv.substr(0,7));
+  });
+  const monthsSorted = [...months].sort().reverse();
+  const monthOpts = monthsSorted.map(m => {
+    const [y, mo] = m.split('-');
+    const label = new Date(y, mo-1).toLocaleString('default', {month:'long',year:'numeric'});
+    return `<option value="${m}">${label}</option>`;
+  }).join('');
+  ['exp-month-filter','trip-month-filter'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.innerHTML = `<option value="">All Months</option>` + monthOpts;
+  });
+  // Dash month
+  const dashSel = document.getElementById('dash-month-sel');
+  if (dashSel) {
+    dashSel.innerHTML = monthsSorted.map(m => {
+      const [y, mo] = m.split('-');
+      return `<option value="${m}">${new Date(y,mo-1).toLocaleString('default',{month:'long',year:'numeric'})}</option>`;
+    }).join('') || `<option value="${new Date().toISOString().substr(0,7)}">${new Date().toLocaleString('default',{month:'long',year:'numeric'})}</option>`;
+    if (!dashSel.value) dashSel.value = new Date().toISOString().substr(0,7);
+  }
+  // Billing cycles
+  const invCycle = document.getElementById('inv-cycle');
+  const tripCycle = document.getElementById('trip-billing-cycle');
+  const allCycles = getAllCycles().reverse();
+  if (invCycle) invCycle.innerHTML = allCycles.map(c => `<option value="${c.id}">${c.label}</option>`).join('');
+  if (tripCycle) tripCycle.innerHTML = `<option value="">Auto-detect</option>` + allCycles.map(c => `<option value="${c.id}">${c.label}</option>`).join('');
+}
+
+function getVehicleName(id) {
+  const v = STATE.vehicles[id];
+  if (!v) return id || 'Unknown';
+  return v.number || v.name || id;
+}
+
+function loadSettingsForm() {
+  const c = STATE.config;
+  setValue('cfg-fixed-cost', c.fixedCost);
+  setValue('cfg-per-km', c.perKm);
+  setValue('cfg-transit-hrs', c.maxTransitHrs);
+  setValue('cfg-maint-days', c.freeMaintDays);
+  setValue('cfg-food-allow', c.foodAllow);
+  setValue('cfg-customer-name', c.customerName);
+  setValue('cfg-customer-addr', c.customerAddr);
+  setValue('cfg-customer-gstin', c.customerGstin);
+  setValue('cfg-company-name', c.companyName);
+  setValue('cfg-company-addr', c.companyAddr);
+  setValue('cfg-company-gstin', c.companyGstin);
+  setValue('cfg-bank-details', c.bankDetails);
+}
+function setValue(id, val) { const el = document.getElementById(id); if (el) el.value = val || ''; }
+function getValue(id) { const el = document.getElementById(id); return el ? el.value : ''; }
+
+async function saveConfig() {
+  const cfg = {
+    fixedCost: Number(getValue('cfg-fixed-cost')) || 85000,
+    perKm: Number(getValue('cfg-per-km')) || 28,
+    maxTransitHrs: Number(getValue('cfg-transit-hrs')) || 18,
+    freeMaintDays: Number(getValue('cfg-maint-days')) || 2,
+    foodAllow: Number(getValue('cfg-food-allow')) || 300,
+    customerName: getValue('cfg-customer-name'),
+    customerAddr: getValue('cfg-customer-addr'),
+    customerGstin: getValue('cfg-customer-gstin'),
+    companyName: getValue('cfg-company-name'),
+    companyAddr: getValue('cfg-company-addr'),
+    companyGstin: getValue('cfg-company-gstin'),
+    bankDetails: getValue('cfg-bank-details'),
+  };
+  await window._dbSet(window._dbRef(window._db, 'config'), cfg);
+  toast('Configuration saved!', 'success');
+}
+
+// ==================== VEHICLES ====================
+function openVehicleModal(id) {
+  document.getElementById('veh-id').value = id || '';
+  if (id && STATE.vehicles[id]) {
+    const v = STATE.vehicles[id];
+    document.getElementById('veh-modal-title').textContent = 'Edit Vehicle';
+    setValue('veh-number', v.number);
+    setValue('veh-name', v.name);
+    setValue('veh-model', v.model);
+    setValue('veh-status', v.status);
+    setValue('veh-notes', v.notes);
+  } else {
+    document.getElementById('veh-modal-title').textContent = 'Add Vehicle';
+    ['veh-number','veh-name','veh-model','veh-notes'].forEach(id => setValue(id,''));
+    setValue('veh-status','active');
+  }
+  openModal('modal-vehicle');
+}
+async function saveVehicle() {
+  const number = getValue('veh-number').trim().toUpperCase();
+  if (!number) { toast('Vehicle number required!', 'error'); return; }
+  const id = getValue('veh-id') || ('V' + uid());
+  const veh = {
+    number, name: getValue('veh-name'), model: getValue('veh-model'),
+    status: getValue('veh-status'), notes: getValue('veh-notes'),
+    createdAt: STATE.vehicles[id]?.createdAt || new Date().toISOString()
+  };
+  await window._dbSet(window._dbRef(window._db, 'vehicles/' + id), veh);
+  closeModal('modal-vehicle');
+  toast('Vehicle saved!', 'success');
+}
+async function deleteVehicle(id) {
+  if (!confirm('Delete this vehicle? All associated data remains.')) return;
+  await window._dbRemove(window._dbRef(window._db, 'vehicles/' + id));
+  toast('Vehicle deleted.', 'info');
+}
+function renderVehiclesGrid() {
+  const grid = document.getElementById('vehicles-grid');
+  const vehs = getVehicleArr();
+  if (!vehs.length) { grid.innerHTML = '<div class="text-muted" style="grid-column:1/-1;padding:20px;text-align:center">No vehicles added yet.</div>'; return; }
+  grid.innerHTML = vehs.map(v => {
+    const statusColor = v.status === 'active' ? 'var(--accent-green)' : v.status === 'maintenance' ? 'var(--accent-amber)' : 'var(--text-muted)';
+    const trips = Object.values(STATE.trips).filter(t => t.vehicleId === v.id);
+    const activeTrip = trips.find(t => t.status === 'active');
+    const totalExp = Object.values(STATE.expenses).filter(e => e.vehicleId === v.id).reduce((s,e) => s + Number(e.amount||0), 0);
+    return `<div class="vehicle-card" onclick="showVehicleDetail('${v.id}')">
+      <div class="flex justify-between items-center mb-8">
+        <div class="vehicle-num">${v.number}</div>
+        <span class="badge" style="background:${statusColor}22;color:${statusColor}">${v.status||'active'}</span>
+      </div>
+      <div style="font-size:13px;color:var(--text-secondary)">${v.name||''} ${v.model ? '· '+v.model : ''}</div>
+      <div class="mt-12" style="font-size:12px;color:var(--text-muted)">${activeTrip ? `🟢 Trip: ${activeTrip.lr||'In Transit'}` : '⚪ No active trip'}</div>
+      <div style="font-size:12px;color:var(--text-muted)">Total trips: ${trips.length} | Expenses: ${fmtINR(totalExp)}</div>
+      <div class="flex gap-8 mt-12">
+        <button class="btn btn-outline btn-xs" onclick="event.stopPropagation();openVehicleModal('${v.id}')">✏️ Edit</button>
+        <button class="btn btn-danger btn-xs" onclick="event.stopPropagation();deleteVehicle('${v.id}')">🗑️</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function showVehicleDetail(vid) {
+  const v = STATE.vehicles[vid];
+  if (!v) return;
+  const trips = Object.values(STATE.trips).filter(t => t.vehicleId === vid).sort((a,b) => new Date(b.docRecv||0) - new Date(a.docRecv||0));
+  const expenses = Object.values(STATE.expenses).filter(e => e.vehicleId === vid).sort((a,b) => new Date(b.date||0) - new Date(a.date||0));
+  const totalExp = expenses.reduce((s,e) => s + Number(e.amount||0), 0);
+  const detail = document.getElementById('vehicle-detail');
+  detail.classList.remove('hidden');
+  detail.innerHTML = `<div class="card">
+    <div class="flex justify-between items-center mb-16">
+      <div class="card-title"><span class="dot" style="background:var(--accent-blue)"></span>${v.number} — ${v.name||''}</div>
+      <button class="btn btn-outline btn-sm" onclick="document.getElementById('vehicle-detail').classList.add('hidden')">✕ Close</button>
+    </div>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchVehTab('veh-trips-${vid}',this)">Trips (${trips.length})</button>
+      <button class="tab-btn" onclick="switchVehTab('veh-exps-${vid}',this)">Expenses (${fmtINR(totalExp)})</button>
+    </div>
+    <div id="veh-trips-${vid}">
+      <div class="table-wrap"><table>
+        <thead><tr><th>LR / Trip</th><th>From</th><th>To</th><th>Doc Recv</th><th>Reached</th><th>Transit</th><th>KM</th><th>Status</th></tr></thead>
+        <tbody>${trips.map(t => {
+          const hrs = getTransitHours(t);
+          const over = hrs !== null && hrs > STATE.config.maxTransitHrs;
+          return `<tr>
+            <td>${t.lr||'—'}</td><td>${t.from||'—'}</td><td>${t.to||'—'}</td>
+            <td class="td-mono">${t.docRecv ? new Date(t.docRecv).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}) : '—'}</td>
+            <td class="td-mono">${t.reached ? new Date(t.reached).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}) : '—'}</td>
+            <td class="${over?'text-red':''}td-mono">${hrs !== null ? hrs.toFixed(1)+'h' : '—'} ${over ? `<span onclick="viewTransitReason('${JSON.stringify(t).replace(/'/g,"\\'")}')">⚠️</span>`:''}</td>
+            <td class="td-mono">${t.km||'—'}</td>
+            <td><span class="badge badge-${t.status==='completed'?'green':t.status==='active'?'blue':'amber'}">${t.status||'active'}</span></td>
+          </tr>`;
+        }).join('')||'<tr><td colspan="8" class="text-muted text-center">No trips</td></tr>'}</tbody>
+      </table></div>
+    </div>
+    <div id="veh-exps-${vid}" class="hidden">
+      <div class="table-wrap"><table>
+        <thead><tr><th>Date</th><th>Type</th><th>Qty / Rate</th><th>Amount</th><th>Notes</th></tr></thead>
+        <tbody>${expenses.map(e => {
+          let qr = '—';
+          if((e.type==='diesel'||e.type==='adblue')&&e.qty) qr=`<span style="font-size:11px">${Number(e.qty).toFixed(1)}L @ ₹${Number(e.rate||0).toFixed(2)}</span>`;
+          return `<tr>
+          <td class="td-mono">${e.date||'—'}</td>
+          <td>${EXP_LABELS[e.type]||e.type}</td>
+          <td>${qr}</td>
+          <td class="td-mono text-amber">${fmtINR(e.amount)}</td>
+          <td class="text-muted">${e.notes||'—'}</td>
+        </tr>`;
+        }).join('')||'<tr><td colspan="5" class="text-muted text-center">No expenses</td></tr>'}</tbody>
+      </table></div>
+    </div>
+  </div>`;
+}
+function switchVehTab(tabId, btn) {
+  const parent = btn.closest('.card');
+  parent.querySelectorAll('[id^="veh-trips-"],[id^="veh-exps-"]').forEach(el => el.classList.add('hidden'));
+  parent.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(tabId).classList.remove('hidden');
+  btn.classList.add('active');
+}
+
+// ==================== TRIPS ====================
+const MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function openTripModal(id) {
+  document.getElementById('trip-id').value = id || '';
+  if (id && STATE.trips[id]) {
+    const t = STATE.trips[id];
+    document.getElementById('trip-modal-title').textContent = 'Edit Trip';
+    setValue('trip-vehicle', t.vehicleId);
+    setValue('trip-lr', t.lr);
+    setValue('trip-status-inp', t.status);
+    setValue('trip-from', t.from);
+    setValue('trip-to', t.to);
+    setValue('trip-doc-recv', t.docRecv ? t.docRecv.slice(0,16) : '');
+    setValue('trip-loaded', t.loaded ? t.loaded.slice(0,16) : '');
+    setValue('trip-reached', t.reached ? t.reached.slice(0,16) : '');
+    setValue('trip-unloaded', t.unloaded ? t.unloaded.slice(0,16) : '');
+    setValue('trip-km', t.km);
+    setValue('trip-billing-cycle', t.billingCycle||'');
+    setValue('trip-delay-reason', t.delayReason||'');
+    setValue('trip-fastag', t.fastagAmt||'');
+    setValue('trip-loading-ch', t.loadingCh||'');
+    setValue('trip-unloading-ch', t.unloadingCh||'');
+    setValue('trip-notes', t.notes||'');
+  } else {
+    document.getElementById('trip-modal-title').textContent = 'New Trip';
+    ['trip-lr','trip-from','trip-to','trip-doc-recv','trip-loaded','trip-reached','trip-unloaded','trip-km','trip-delay-reason','trip-fastag','trip-loading-ch','trip-unloading-ch','trip-notes'].forEach(i => setValue(i,''));
+    setValue('trip-status-inp','active');
+  }
+  checkTransitAlert();
+  openModal('modal-trip');
+}
+function checkTransitAlert() {
+  const docRecv = getValue('trip-doc-recv');
+  const reached = getValue('trip-reached');
+  const alertEl = document.getElementById('transit-alert');
+  const starEl = document.getElementById('transit-req-star');
+  if (docRecv && reached) {
+    const hrs = (new Date(reached) - new Date(docRecv)) / 3600000;
+    const over = hrs > STATE.config.maxTransitHrs;
+    alertEl.classList.toggle('hidden', !over);
+    if (starEl) starEl.style.display = over ? 'inline' : 'none';
+    const info = document.getElementById('trip-transit-info');
+    if (info) info.innerHTML = `<div class="alert ${over?'alert-red':'alert-green'}">Transit time: <b>${hrs.toFixed(1)} hrs</b> ${over ? '⚠️ Exceeds '+STATE.config.maxTransitHrs+'hr limit' : '✅ Within limit'}</div>`;
+  } else {
+    alertEl.classList.add('hidden');
+    if (starEl) starEl.style.display = 'none';
+  }
+}
+document.getElementById('trip-doc-recv')?.addEventListener('change', checkTransitAlert);
+document.getElementById('trip-reached')?.addEventListener('change', checkTransitAlert);
+// These listeners get attached after DOM loads
+window.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('trip-doc-recv').addEventListener('change', checkTransitAlert);
+  document.getElementById('trip-reached').addEventListener('change', checkTransitAlert);
+});
+
+async function saveTrip() {
+  const vehicleId = getValue('trip-vehicle');
+  const docRecv = getValue('trip-doc-recv');
+  if (!vehicleId) { toast('Select a vehicle!', 'error'); return; }
+  if (!docRecv) { toast('Document received date is required!', 'error'); return; }
+  const reached = getValue('trip-reached');
+  if (reached && docRecv) {
+    const hrs = (new Date(reached) - new Date(docRecv)) / 3600000;
+    if (hrs > STATE.config.maxTransitHrs && !getValue('trip-delay-reason').trim()) {
+      document.getElementById('transit-reason-err').classList.remove('hidden');
+      toast('Transit delay reason is mandatory!', 'error'); return;
+    }
+  }
+  document.getElementById('transit-reason-err').classList.add('hidden');
+  const id = getValue('trip-id') || ('T' + uid());
+  let billingCycle = getValue('trip-billing-cycle');
+  // Auto detect billing cycle from unloading date or doc recv
+  if (!billingCycle) {
+    const refDate = getValue('trip-unloaded') || getValue('trip-reached') || docRecv;
+    const c = getCycleForDate(refDate);
+    if (c) billingCycle = c.id;
+  }
+  const trip = {
+    vehicleId, lr: getValue('trip-lr'), status: getValue('trip-status-inp'),
+    from: getValue('trip-from'), to: getValue('trip-to'),
+    docRecv, loaded: getValue('trip-loaded'),
+    reached, unloaded: getValue('trip-unloaded'),
+    km: Number(getValue('trip-km'))||0,
+    billingCycle,
+    delayReason: getValue('trip-delay-reason'),
+    fastagAmt: Number(getValue('trip-fastag'))||0,
+    loadingCh: Number(getValue('trip-loading-ch'))||0,
+    unloadingCh: Number(getValue('trip-unloading-ch'))||0,
+    notes: getValue('trip-notes'),
+    createdAt: STATE.trips[id]?.createdAt || new Date().toISOString()
+  };
+  await window._dbSet(window._dbRef(window._db, 'trips/' + id), trip);
+  closeModal('modal-trip');
+  toast('Trip saved!', 'success');
+}
+async function deleteTrip(id) {
+  if (!confirm('Delete this trip?')) return;
+  await window._dbRemove(window._dbRef(window._db, 'trips/' + id));
+  toast('Trip deleted.', 'info');
+}
+function renderTripsTable() {
+  const vehF = getValue('trip-veh-filter');
+  const monthF = getValue('trip-month-filter');
+  const statusF = getValue('trip-status-filter');
+  let trips = Object.entries(STATE.trips).map(([id,t]) => ({id,...t}));
+  if (vehF) trips = trips.filter(t => t.vehicleId === vehF);
+  if (monthF) trips = trips.filter(t => (t.docRecv||'').startsWith(monthF));
+  if (statusF) trips = trips.filter(t => t.status === statusF);
+  trips.sort((a,b) => new Date(b.docRecv||0) - new Date(a.docRecv||0));
+  const wrap = document.getElementById('trips-table-wrap');
+  if (!trips.length) { wrap.innerHTML = '<div class="text-muted text-center" style="padding:24px">No trips found.</div>'; return; }
+  wrap.innerHTML = `<table>
+    <thead><tr><th>Vehicle</th><th>LR No.</th><th>From → To</th><th>Doc Recv</th><th>Reached</th><th>Transit</th><th>KM</th><th>FASTag</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody>${trips.map(t => {
+      const hrs = getTransitHours(t);
+      const over = hrs !== null && hrs > STATE.config.maxTransitHrs;
+      return `<tr>
+        <td><b>${getVehicleName(t.vehicleId)}</b></td>
+        <td>${t.lr||'—'}</td>
+        <td>${t.from||'—'} → ${t.to||'—'}</td>
+        <td class="td-mono">${t.docRecv ? new Date(t.docRecv).toLocaleString('en-IN',{day:'2-digit',month:'short',year:'2-digit',hour:'2-digit',minute:'2-digit'}) : '—'}</td>
+        <td class="td-mono">${t.reached ? new Date(t.reached).toLocaleString('en-IN',{day:'2-digit',month:'short',year:'2-digit',hour:'2-digit',minute:'2-digit'}) : '—'}</td>
+        <td class="${over?'text-red':'td-mono'}">${hrs !== null ? hrs.toFixed(1)+'h' : '—'} ${over ? `<button class="btn btn-outline btn-xs text-amber" onclick='viewTransitReason(${JSON.stringify(JSON.stringify(t))})'>⚠️ Reason</button>`:''}</td>
+        <td class="td-mono">${t.km||'—'}</td>
+        <td class="td-mono">${t.fastagAmt ? fmtINR(t.fastagAmt) : '—'}</td>
+        <td><span class="badge badge-${t.status==='completed'?'green':t.status==='active'?'blue':'amber'}">${t.status||'active'}</span></td>
+        <td class="flex gap-8"><button class="btn btn-outline btn-xs" onclick="openTripModal('${t.id}')">✏️</button><button class="btn btn-danger btn-xs" onclick="deleteTrip('${t.id}')">🗑️</button></td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table>`;
+}
+function viewTransitReason(tripJson) {
+  const t = typeof tripJson === 'string' ? JSON.parse(tripJson) : tripJson;
+  const hrs = getTransitHours(t);
+  document.getElementById('transit-reason-body').innerHTML = `
+    <div class="alert alert-red mb-12">Transit: <b>${hrs?hrs.toFixed(1)+'h':'N/A'}</b> — Limit: ${STATE.config.maxTransitHrs}h</div>
+    <div class="form-group"><label class="form-label">Vehicle</label><div>${getVehicleName(t.vehicleId)}</div></div>
+    <div class="form-group"><label class="form-label">Trip / LR</label><div>${t.lr||'—'}</div></div>
+    <div class="form-group"><label class="form-label">Route</label><div>${t.from||'—'} → ${t.to||'—'}</div></div>
+    <div class="form-group"><label class="form-label">Delay Reason</label><div class="alert alert-amber">${t.delayReason||'<em>No reason provided</em>'}</div></div>`;
+  openModal('modal-transit-reason');
+}
+
+// ==================== EXPENSES ====================
+const EXP_LABELS = {
+  diesel:'Diesel', driver_salary:'Driver Salary', route_adv:'Route Advance',
+  loading:'Loading Charges', unloading:'Unloading Charges', fastag:'FASTag',
+  parking:'Parking', food:'Driver Food', adblue:'AdBlue',
+  maintenance:'Maintenance', other:'Other/Misc'
+};
+const EXP_COLORS = {
+  diesel:'blue', driver_salary:'purple', route_adv:'teal', loading:'amber', unloading:'amber',
+  fastag:'green', parking:'teal', food:'amber', adblue:'blue', maintenance:'red', other:'muted'
+};
+// openExpenseModal is defined below with fuel subsection support
+function onExpTypeChange() {
+  const t = getValue('exp-type');
+  document.getElementById('food-helper').classList.toggle('hidden', t !== 'food');
+  document.getElementById('maint-helper').classList.toggle('hidden', t !== 'maintenance');
+  const isDiesel = t === 'diesel';
+  const isAdblue = t === 'adblue';
+  document.getElementById('diesel-subsection').classList.toggle('hidden', !isDiesel);
+  document.getElementById('adblue-subsection').classList.toggle('hidden', !isAdblue);
+  // Hide main amount field for diesel/adblue (it's controlled by subsection)
+  const amtGrp = document.getElementById('exp-amount-grp');
+  if(isDiesel || isAdblue) {
+    amtGrp.style.opacity = '0.5';
+    amtGrp.title = 'Auto-calculated from subsection';
+    document.getElementById('exp-amount').readOnly = true;
+    document.getElementById('exp-amount').placeholder = 'Auto from Qty × Rate';
+  } else {
+    amtGrp.style.opacity = '1';
+    amtGrp.title = '';
+    document.getElementById('exp-amount').readOnly = false;
+    document.getElementById('exp-amount').placeholder = '0';
+  }
+}
+function calcFuelAmount(type) {
+  const qty = parseFloat(document.getElementById(type+'-qty').value) || 0;
+  const rate = parseFloat(document.getElementById(type+'-rate').value) || 0;
+  const amt = qty * rate;
+  if(qty > 0 && rate > 0) {
+    document.getElementById(type+'-amount').value = amt.toFixed(2);
+    document.getElementById('exp-amount').value = amt.toFixed(2);
+  }
+}
+function onFuelAmountOverride(type) {
+  const amt = parseFloat(document.getElementById(type+'-amount').value) || 0;
+  document.getElementById('exp-amount').value = amt.toFixed(2);
+}
+function onAmountManualEdit() {
+  // If not diesel/adblue, just a normal edit — nothing special
+}
+function openExpenseModal(id) {
+  document.getElementById('exp-id').value = id || '';
+  // Reset subsection fields
+  ['diesel-qty','diesel-rate','diesel-amount','adblue-qty','adblue-rate','adblue-amount'].forEach(i => setValue(i,''));
+  if (id && STATE.expenses[id]) {
+    const e = STATE.expenses[id];
+    document.getElementById('exp-modal-title').textContent = 'Edit Expense';
+    setValue('exp-vehicle', e.vehicleId);
+    setValue('exp-type', e.type);
+    setValue('exp-date', e.date);
+    setValue('exp-amount', e.amount);
+    setValue('exp-trip', e.tripId||'');
+    setValue('exp-notes', e.notes||'');
+    setValue('exp-maint-free', e.maintFree||'no');
+    // Restore diesel/adblue sub-fields
+    if(e.type === 'diesel') {
+      setValue('diesel-qty', e.qty||''); setValue('diesel-rate', e.rate||''); setValue('diesel-amount', e.amount||'');
+    }
+    if(e.type === 'adblue') {
+      setValue('adblue-qty', e.qty||''); setValue('adblue-rate', e.rate||''); setValue('adblue-amount', e.amount||'');
+    }
+    onExpTypeChange();
+  } else {
+    document.getElementById('exp-modal-title').textContent = 'Add Expense';
+    ['exp-amount','exp-notes'].forEach(i => setValue(i,''));
+    setValue('exp-date', new Date().toISOString().split('T')[0]);
+    setValue('exp-type','');
+    setValue('exp-maint-free','no');
+    onExpTypeChange();
+  }
+  openModal('modal-expense');
+}
+async function saveExpense() {
+  const vehicleId = getValue('exp-vehicle');
+  const type = getValue('exp-type');
+  const date = getValue('exp-date');
+  if (!vehicleId) { toast('Select a vehicle!', 'error'); return; }
+  if (!type) { toast('Select expense type!', 'error'); return; }
+  if (!date) { toast('Select date!', 'error'); return; }
+  // For diesel/adblue, validate subsection and auto-calc amount
+  let qty = null, rate = null;
+  if(type === 'diesel') {
+    qty = parseFloat(getValue('diesel-qty'));
+    rate = parseFloat(getValue('diesel-rate'));
+    if(!qty || qty <= 0) { toast('Enter diesel quantity!', 'error'); return; }
+    if(!rate || rate <= 0) { toast('Enter diesel rate!', 'error'); return; }
+    const calcAmt = parseFloat(getValue('diesel-amount')) || (qty * rate);
+    setValue('exp-amount', calcAmt.toFixed(2));
+  }
+  if(type === 'adblue') {
+    qty = parseFloat(getValue('adblue-qty'));
+    rate = parseFloat(getValue('adblue-rate'));
+    if(!qty || qty <= 0) { toast('Enter AdBlue quantity!', 'error'); return; }
+    if(!rate || rate <= 0) { toast('Enter AdBlue rate!', 'error'); return; }
+    const calcAmt = parseFloat(getValue('adblue-amount')) || (qty * rate);
+    setValue('exp-amount', calcAmt.toFixed(2));
+  }
+  const amount = getValue('exp-amount');
+  if (!amount || Number(amount) <= 0) { toast('Enter valid amount!', 'error'); return; }
+  const id = getValue('exp-id') || ('E' + uid());
+  const exp = {
+    vehicleId, type, date, amount: Number(amount),
+    tripId: getValue('exp-trip'), notes: getValue('exp-notes'),
+    maintFree: getValue('exp-maint-free'),
+    createdAt: STATE.expenses[id]?.createdAt || new Date().toISOString()
+  };
+  if(qty !== null) exp.qty = qty;
+  if(rate !== null) exp.rate = rate;
+  await window._dbSet(window._dbRef(window._db, 'expenses/' + id), exp);
+  closeModal('modal-expense');
+  toast('Expense saved!', 'success');
+}
+async function deleteExpense(id) {
+  if (!confirm('Delete this expense?')) return;
+  await window._dbRemove(window._dbRef(window._db, 'expenses/' + id));
+  toast('Expense deleted.', 'info');
+}
+function renderExpensesTable() {
+  const vehF = getValue('exp-veh-filter');
+  const monthF = getValue('exp-month-filter');
+  const typeF = getValue('exp-type-filter');
+  let exps = Object.entries(STATE.expenses).map(([id,e]) => ({id,...e}));
+  if (vehF) exps = exps.filter(e => e.vehicleId === vehF);
+  if (monthF) exps = exps.filter(e => (e.date||'').startsWith(monthF));
+  if (typeF) exps = exps.filter(e => e.type === typeF);
+  exps.sort((a,b) => new Date(b.date||0) - new Date(a.date||0));
+  const total = exps.reduce((s,e) => s + Number(e.amount||0), 0);
+  const totalDiesel = exps.filter(e=>e.type==='diesel').reduce((s,e)=>s+Number(e.amount||0),0);
+  const totalDieselQty = exps.filter(e=>e.type==='diesel'&&e.qty).reduce((s,e)=>s+Number(e.qty||0),0);
+  const totalAdblue = exps.filter(e=>e.type==='adblue').reduce((s,e)=>s+Number(e.amount||0),0);
+  const wrap = document.getElementById('expenses-table-wrap');
+  wrap.innerHTML = `<div class="flex justify-between items-center mb-12" style="flex-wrap:wrap;gap:8px">
+    <div style="font-size:13px;color:var(--text-muted)">${exps.length} records</div>
+    <div class="flex gap-8 items-center" style="flex-wrap:wrap;gap:10px">
+      ${totalDieselQty>0?`<span class="text-muted" style="font-size:12px">⛽ ${totalDieselQty.toFixed(1)}L — ${fmtINR(totalDiesel)}</span>`:''}
+      ${totalAdblue>0?`<span class="text-muted" style="font-size:12px">🔵 AdBlue: ${fmtINR(totalAdblue)}</span>`:''}
+      <span class="text-muted" style="font-size:12px">Total:</span> <b class="text-amber td-mono">${fmtINR(total)}</b>
+    </div>
+  </div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Date</th><th>Vehicle</th><th>Type</th><th>Qty / Rate</th><th>Amount</th><th>Trip Ref</th><th>Notes</th><th>Actions</th></tr></thead>
+    <tbody>${exps.map(e => {
+      let qtyRateCell = '—';
+      if((e.type==='diesel'||e.type==='adblue') && e.qty) {
+        qtyRateCell = `<span class="td-mono" style="font-size:11px">${Number(e.qty).toFixed(1)}L @ ₹${Number(e.rate||0).toFixed(2)}</span>`;
+      }
+      return `<tr>
+        <td class="td-mono">${e.date||'—'}</td>
+        <td><b>${getVehicleName(e.vehicleId)}</b></td>
+        <td><span class="badge badge-${EXP_COLORS[e.type]||'teal'}">${EXP_LABELS[e.type]||e.type}</span>${e.maintFree==='yes'?' <span class="badge badge-green" style="font-size:10px">Free Day</span>':''}</td>
+        <td>${qtyRateCell}</td>
+        <td class="td-mono text-amber">${fmtINR(e.amount)}</td>
+        <td class="text-muted">${e.tripId ? (STATE.trips[e.tripId]?.lr||e.tripId) : '—'}</td>
+        <td class="text-muted" style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${e.notes||'—'}</td>
+        <td><div class="flex gap-8"><button class="btn btn-outline btn-xs" onclick="openExpenseModal('${e.id}')">✏️</button><button class="btn btn-danger btn-xs" onclick="deleteExpense('${e.id}')">🗑️</button></div></td>
+      </tr>`;
+    }).join('')||'<tr><td colspan="8" class="text-muted text-center" style="padding:24px">No expenses found.</td></tr>'}</tbody>
+  </table></div>`;
+}
+
+// ==================== DASHBOARD ====================
+function renderDashboard() {
+  const selMonth = getValue('dash-month-sel');
+  const [year, month] = selMonth ? selMonth.split('-').map(Number) : [new Date().getFullYear(), new Date().getMonth()+1];
+  const monthStr = `${year}-${String(month).padStart(2,'0')}`;
+  const vehs = getVehicleArr();
+  const trips = Object.values(STATE.trips).filter(t => (t.docRecv||'').startsWith(monthStr));
+  const expenses = Object.values(STATE.expenses).filter(e => (e.date||'').startsWith(monthStr));
+  const totalExp = expenses.reduce((s,e) => s + Number(e.amount||0), 0);
+  const activeTrips = Object.values(STATE.trips).filter(t => t.status === 'active');
+  const transitAlerts = trips.filter(t => {
+    const hrs = getTransitHours(t);
+    return hrs !== null && hrs > STATE.config.maxTransitHrs;
+  });
+  const expByType = {};
+  expenses.forEach(e => { expByType[e.type] = (expByType[e.type]||0) + Number(e.amount||0); });
+  const expByVeh = {};
+  expenses.forEach(e => { expByVeh[e.vehicleId] = (expByVeh[e.vehicleId]||0) + Number(e.amount||0); });
+  // Revenue from invoices this month
+  const monthInvoices = Object.values(STATE.invoices).filter(inv => (inv.cycleId||'').startsWith(monthStr.slice(0,7)));
+  const totalInvoiced = monthInvoices.reduce((s,inv) => s + Number(inv.total||0), 0);
+  const profit = totalInvoiced - totalExp;
+  const content = document.getElementById('dash-content');
+  content.innerHTML = `
+    <!-- KPI Row -->
+    <div class="grid-5 mb-16">
+      <div class="stat-card"><div class="stat-label">Total Fleet</div><div class="stat-value blue">${vehs.length}</div><div class="stat-sub">Vehicles</div></div>
+      <div class="stat-card"><div class="stat-label">Active Trips</div><div class="stat-value amber">${activeTrips.length}</div><div class="stat-sub">In transit</div></div>
+      <div class="stat-card"><div class="stat-label">Month Expenses</div><div class="stat-value red">${fmtINR(totalExp)}</div><div class="stat-sub">${expenses.length} records</div></div>
+      <div class="stat-card"><div class="stat-label">Invoiced</div><div class="stat-value green">${fmtINR(totalInvoiced)}</div><div class="stat-sub">${monthInvoices.length} invoice(s)</div></div>
+      <div class="stat-card"><div class="stat-label">P&amp;L</div><div class="stat-value ${profit>=0?'green':'red'}">${fmtINR(profit)}</div><div class="stat-sub">${profit>=0?'Profit':'Loss'}</div></div>
+    </div>
+    ${transitAlerts.length ? `<div class="alert alert-red mb-16">⚠️ <b>${transitAlerts.length} transit delay(s)</b> this month exceed ${STATE.config.maxTransitHrs}hr limit — check Trips tab.</div>` : ''}
+    <div class="grid-2 mb-16">
+      <!-- Expense Breakdown -->
+      <div class="card">
+        <div class="card-title"><span class="dot" style="background:var(--accent-amber)"></span>Expense Breakdown — ${new Date(year,month-1).toLocaleString('default',{month:'long'})}</div>
+        ${Object.keys(EXP_LABELS).map(type => {
+          const amt = expByType[type]||0;
+          if (!amt) return '';
+          const pct = totalExp > 0 ? (amt/totalExp*100).toFixed(1) : 0;
+          const typeExps = expenses.filter(e=>e.type===type);
+          const qtyInfo = (type==='diesel'||type==='adblue') ? (() => {
+            const totalQty = typeExps.reduce((s,e)=>s+Number(e.qty||0),0);
+            const avgRate = totalQty>0 ? amt/totalQty : 0;
+            return totalQty>0 ? ` · ${totalQty.toFixed(1)}L @ avg ₹${avgRate.toFixed(2)}` : '';
+          })() : '';
+          return `<div class="mb-8">
+            <div class="flex justify-between mb-4" style="font-size:12px"><span>${EXP_LABELS[type]}${qtyInfo}</span><span class="text-mono">${fmtINR(amt)} (${pct}%)</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:var(--accent-amber)"></div></div>
+          </div>`;
+        }).join('')||'<div class="text-muted">No expenses this month.</div>'}
+      </div>
+      <!-- Per Vehicle -->
+      <div class="card">
+        <div class="card-title"><span class="dot" style="background:var(--accent-blue)"></span>Per Vehicle — ${new Date(year,month-1).toLocaleString('default',{month:'long'})}</div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Vehicle</th><th>Trips</th><th>Expenses</th><th>Status</th></tr></thead>
+          <tbody>${vehs.map(v => {
+            const vExps = expenses.filter(e => e.vehicleId === v.id).reduce((s,e) => s + Number(e.amount||0), 0);
+            const vTrips = trips.filter(t => t.vehicleId === v.id).length;
+            const statusColor = v.status === 'active' ? 'green' : v.status === 'maintenance' ? 'amber' : 'teal';
+            return `<tr><td><b>${v.number}</b><br><span class="text-muted" style="font-size:11px">${v.name||''}</span></td><td>${vTrips}</td><td class="text-amber td-mono">${fmtINR(vExps)}</td><td><span class="badge badge-${statusColor}">${v.status||'active'}</span></td></tr>`;
+          }).join('')||'<tr><td colspan="4" class="text-muted text-center">No vehicles</td></tr>'}</tbody>
+        </table></div>
+      </div>
+    </div>
+    <!-- Recent Trips -->
+    <div class="card mb-16">
+      <div class="card-title"><span class="dot" style="background:var(--accent-teal)"></span>Recent Trips — ${new Date(year,month-1).toLocaleString('default',{month:'long'})}</div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Vehicle</th><th>LR No.</th><th>Route</th><th>Doc Recv</th><th>Transit</th><th>KM</th><th>Status</th></tr></thead>
+        <tbody>${trips.slice(0,8).map(t => {
+          const hrs = getTransitHours(t);
+          const over = hrs !== null && hrs > STATE.config.maxTransitHrs;
+          return `<tr>
+            <td><b>${getVehicleName(t.vehicleId)}</b></td>
+            <td>${t.lr||'—'}</td>
+            <td>${t.from||'—'} → ${t.to||'—'}</td>
+            <td class="td-mono">${t.docRecv ? new Date(t.docRecv).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}) : '—'}</td>
+            <td class="${over?'text-red':'td-mono'}">${hrs !== null ? hrs.toFixed(1)+'h' : '—'} ${over?'⚠️':''}</td>
+            <td class="td-mono">${t.km||'—'}</td>
+            <td><span class="badge badge-${t.status==='completed'?'green':t.status==='active'?'blue':'amber'}">${t.status}</span></td>
+          </tr>`;
+        }).join('')||'<tr><td colspan="7" class="text-muted text-center" style="padding:20px">No trips this month.</td></tr>'}</tbody>
+      </table></div>
+    </div>
+    <!-- Invoices -->
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--accent-green)"></span>Invoices</div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Invoice No.</th><th>Cycle</th><th>Vehicles</th><th>Fixed</th><th>Variable</th><th>FASTag</th><th>Deductions</th><th>Total</th><th></th></tr></thead>
+        <tbody>${Object.entries(STATE.invoices).sort((a,b) => new Date(b[1].createdAt||0) - new Date(a[1].createdAt||0)).slice(0,5).map(([id,inv]) => `<tr>
+          <td><b>${inv.invoiceNo||id}</b></td>
+          <td class="text-muted" style="font-size:12px">${inv.cycleLabel||inv.cycleId}</td>
+          <td>${inv.vehicleCount||'—'}</td>
+          <td class="td-mono">${fmtINR(inv.fixedTotal)}</td>
+          <td class="td-mono">${fmtINR(inv.variableTotal)}</td>
+          <td class="td-mono">${fmtINR(inv.fastagTotal)}</td>
+          <td class="td-mono text-red">${fmtINR(inv.deductions)}</td>
+          <td class="td-mono text-green"><b>${fmtINR(inv.total)}</b></td>
+          <td><button class="btn btn-outline btn-xs" onclick="viewInvoice('${id}')">👁️</button></td>
+        </tr>`).join('')||'<tr><td colspan="9" class="text-muted text-center" style="padding:16px">No invoices yet.</td></tr>'}</tbody>
+      </table></div>
+    </div>`;
+}
+
+// ==================== BILLING ====================
+function renderBillingPage() {
+  const content = document.getElementById('billing-content');
+  const invoices = Object.entries(STATE.invoices).sort((a,b) => new Date(b[1].createdAt||0) - new Date(a[1].createdAt||0));
+  content.innerHTML = `<div class="card">
+    <div class="card-title"><span class="dot" style="background:var(--accent-green)"></span>All Invoices</div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Invoice No.</th><th>Date</th><th>Cycle</th><th>Vehicles</th><th>Fixed</th><th>Variable</th><th>FASTag</th><th>Load/Unload</th><th>Deductions</th><th>Total</th><th>Actions</th></tr></thead>
+      <tbody>${invoices.map(([id,inv]) => `<tr>
+        <td><b>${inv.invoiceNo||id}</b></td>
+        <td class="td-mono">${inv.createdAt ? new Date(inv.createdAt).toLocaleDateString('en-IN') : '—'}</td>
+        <td style="font-size:12px;color:var(--text-muted)">${inv.cycleLabel||inv.cycleId||'—'}</td>
+        <td>${inv.vehicleCount||'—'}</td>
+        <td class="td-mono">${fmtINR(inv.fixedTotal)}</td>
+        <td class="td-mono">${fmtINR(inv.variableTotal)}</td>
+        <td class="td-mono">${fmtINR(inv.fastagTotal)}</td>
+        <td class="td-mono">${fmtINR(inv.loadingTotal)}</td>
+        <td class="td-mono text-red">${fmtINR(inv.deductions)}</td>
+        <td class="td-mono text-green"><b>${fmtINR(inv.total)}</b></td>
+        <td class="flex gap-8">
+          <button class="btn btn-outline btn-xs" onclick="viewInvoice('${id}')">👁️</button>
+          <button class="btn btn-danger btn-xs" onclick="deleteInvoice('${id}')">🗑️</button>
+        </td>
+      </tr>`).join('')||'<tr><td colspan="11" class="text-muted text-center" style="padding:24px">No invoices generated yet.</td></tr>'}</tbody>
+    </table></div>
+  </div>`;
+}
+function openBillingModal() {
+  populateDropdowns();
+  document.getElementById('invoice-preview-area').innerHTML = '';
+  document.getElementById('inv-number').value = 'INV-' + new Date().getFullYear() + '-' + String(Object.keys(STATE.invoices).length+1).padStart(3,'0');
+  openModal('modal-billing');
+}
+
+function getCycleById(cid) {
+  return getAllCycles().find(c => c.id === cid);
+}
+
+function loadCycleData() {
+  const cid = getValue('inv-cycle');
+  if (!cid) return;
+  const cycle = getCycleById(cid);
+  if (!cycle) return;
+  previewInvoice();
+}
+
+function buildInvoiceData(cid, invNum) {
+  const cycle = getCycleById(cid);
+  if (!cycle) return null;
+  const vehs = getVehicleArr();
+  const { year, month, startDay, endDay, days } = cycle;
+  const startDate = new Date(year, month, startDay);
+  const endDate = new Date(year, month, endDay, 23, 59, 59);
+  // Trips in this billing cycle (by unloading date or docRecv)
+  const cycleTrips = Object.values(STATE.trips).filter(t => {
+    const refDate = t.unloaded || t.reached || t.docRecv;
+    if (!refDate) return false;
+    const d = new Date(refDate);
+    return t.billingCycle === cid || (!t.billingCycle && d >= startDate && d <= endDate);
+  });
+  const perDayFixed = STATE.config.fixedCost / 30; // approx per day
+  const vehRows = vehs.map(v => {
+    const vTrips = cycleTrips.filter(t => t.vehicleId === v.id);
+    const totalKm = vTrips.reduce((s,t) => s + Number(t.km||0), 0);
+    const fastagAmt = vTrips.reduce((s,t) => s + Number(t.fastagAmt||0), 0);
+    const loadingAmt = vTrips.reduce((s,t) => s + Number(t.loadingCh||0), 0);
+    const unloadingAmt = vTrips.reduce((s,t) => s + Number(t.unloadingCh||0), 0);
+    // Maintenance free days
+    const maintExps = Object.values(STATE.expenses).filter(e =>
+      e.vehicleId === v.id && e.type === 'maintenance' && e.maintFree === 'yes' &&
+      e.date >= `${year}-${String(month+1).padStart(2,'0')}-${String(startDay).padStart(2,'0')}` &&
+      e.date <= `${year}-${String(month+1).padStart(2,'0')}-${String(endDay).padStart(2,'0')}`
+    );
+    const freeDaysUsed = Math.min(maintExps.length, STATE.config.freeMaintDays);
+    const billableDays = Math.max(0, days - freeDaysUsed);
+    const fixedAmt = perDayFixed * billableDays;
+    const variableAmt = totalKm * STATE.config.perKm;
+    // Transit deductions
+    let transitDeduction = 0;
+    const delayedTrips = vTrips.filter(t => {
+      const hrs = getTransitHours(t);
+      return hrs !== null && hrs > STATE.config.maxTransitHrs;
+    });
+    delayedTrips.forEach(t => {
+      const hrs = getTransitHours(t);
+      const extraHrs = hrs - STATE.config.maxTransitHrs;
+      const extraDays = Math.ceil(extraHrs / 24);
+      transitDeduction += extraDays * perDayFixed;
+    });
+    return {
+      vehicleId: v.id, vehicleNum: v.number, vehicleName: v.name,
+      trips: vTrips.length, km: totalKm,
+      fastagAmt, loadingAmt, unloadingAmt,
+      freeDaysUsed, billableDays, fixedAmt, variableAmt,
+      transitDeduction, delayedTrips,
+      subtotal: fixedAmt + variableAmt + fastagAmt + loadingAmt + unloadingAmt - transitDeduction
+    };
+  }).filter(r => r.trips > 0 || true); // include all vehicles
+
+  const fixedTotal = vehRows.reduce((s,r) => s + r.fixedAmt, 0);
+  const variableTotal = vehRows.reduce((s,r) => s + r.variableAmt, 0);
+  const fastagTotal = vehRows.reduce((s,r) => s + r.fastagAmt, 0);
+  const loadingTotal = vehRows.reduce((s,r) => s + (r.loadingAmt + r.unloadingAmt), 0);
+  const deductions = vehRows.reduce((s,r) => s + r.transitDeduction, 0);
+  const total = vehRows.reduce((s,r) => s + r.subtotal, 0);
+  return {
+    invoiceNo: invNum || getValue('inv-number'),
+    cycleId: cid, cycleLabel: cycle.label,
+    cycle, vehRows, fixedTotal, variableTotal, fastagTotal, loadingTotal, deductions, total,
+    vehicleCount: vehs.length,
+    createdAt: new Date().toISOString()
+  };
+}
+
+function buildInvoiceHTML(data, compact = false) {
+  const cfg = STATE.config;
+  const { vehRows, cycle } = data;
+  return `
+  <div style="background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-top:16px">
+    <div class="flex justify-between items-center mb-16">
+      <div>
+        <div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:var(--text-heading)">${cfg.companyName||'MV FLEET'}</div>
+        <div style="font-size:12px;color:var(--text-muted);white-space:pre-line">${cfg.companyAddr||''}</div>
+        ${cfg.companyGstin ? `<div style="font-size:12px;color:var(--text-muted)">GSTIN: ${cfg.companyGstin}</div>` : ''}
+      </div>
+      <div style="text-align:right">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:500;color:var(--accent-blue)">${data.invoiceNo}</div>
+        <div style="font-size:12px;color:var(--text-muted)">${new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'})}</div>
+        <div style="font-size:12px;color:var(--text-muted)">${data.cycleLabel}</div>
+      </div>
+    </div>
+    <div class="grid-2 mb-16" style="gap:12px">
+      <div style="background:var(--bg-card);padding:12px;border-radius:var(--radius-sm);border:1px solid var(--border)">
+        <div style="font-size:10px;color:var(--text-muted);letter-spacing:1px;margin-bottom:4px">BILLED TO</div>
+        <div style="font-weight:600">${cfg.customerName||'Customer'}</div>
+        <div style="font-size:12px;color:var(--text-secondary);white-space:pre-line">${cfg.customerAddr||''}</div>
+        ${cfg.customerGstin ? `<div style="font-size:12px;color:var(--text-muted)">GSTIN: ${cfg.customerGstin}</div>` : ''}
+      </div>
+      <div style="background:var(--bg-card);padding:12px;border-radius:var(--radius-sm);border:1px solid var(--border)">
+        <div style="font-size:10px;color:var(--text-muted);letter-spacing:1px;margin-bottom:4px">SUMMARY</div>
+        <div style="font-size:13px">Vehicles: <b>${data.vehicleCount}</b> | Cycle Days: <b>${cycle.days}</b></div>
+        <div style="font-size:13px">Fixed Rate: <b>${fmtINR(cfg.fixedCost)}/month</b> | Variable: <b>₹${cfg.perKm}/km</b></div>
+        <div style="font-size:13px">Free Maintenance Days: <b>${cfg.freeMaintDays}/vehicle/month</b></div>
+      </div>
+    </div>
+    <div class="table-wrap mb-16">
+      <table>
+        <thead><tr>
+          <th>Vehicle</th><th>Trips</th><th>KM</th>
+          <th>Bill Days</th><th>Fixed (₹)</th><th>Variable (₹)</th>
+          <th>FASTag (₹)</th><th>Load/Unload (₹)</th><th>Transit Deduction (₹)</th><th>Subtotal (₹)</th>
+        </tr></thead>
+        <tbody>
+        ${vehRows.map(r => `<tr>
+          <td><b>${r.vehicleNum}</b><br><span style="font-size:11px;color:var(--text-muted)">${r.vehicleName||''}</span></td>
+          <td>${r.trips}</td>
+          <td class="td-mono">${r.km}</td>
+          <td>${r.billableDays} ${r.freeDaysUsed>0?`<span style="font-size:10px;color:var(--accent-green)">(${r.freeDaysUsed} free)</span>`:''}</td>
+          <td><input class="editable-cell" type="number" value="${r.fixedAmt.toFixed(0)}" onchange="updateInvRow(this,'fixedAmt','${r.vehicleId}')" style="width:90px"></td>
+          <td><input class="editable-cell" type="number" value="${r.variableAmt.toFixed(0)}" onchange="updateInvRow(this,'variableAmt','${r.vehicleId}')" style="width:90px"></td>
+          <td><input class="editable-cell" type="number" value="${r.fastagAmt.toFixed(0)}" onchange="updateInvRow(this,'fastagAmt','${r.vehicleId}')" style="width:80px"></td>
+          <td><input class="editable-cell" type="number" value="${(r.loadingAmt+r.unloadingAmt).toFixed(0)}" onchange="updateInvRow(this,'loadingTotal','${r.vehicleId}')" style="width:90px"></td>
+          <td><input class="editable-cell text-red" type="number" value="${r.transitDeduction.toFixed(0)}" onchange="updateInvRow(this,'transitDeduction','${r.vehicleId}')" style="width:90px;color:var(--accent-red)"></td>
+          <td class="td-mono text-green"><b id="row-sub-${r.vehicleId}">${fmtINR(r.subtotal)}</b></td>
+        </tr>
+        ${r.delayedTrips.length ? `<tr><td colspan="10" style="background:rgba(252,129,129,0.05);padding:6px 12px;font-size:11px;color:var(--accent-amber)">⚠️ Transit delays: ${r.delayedTrips.map(t => `${t.lr||'Trip'} (${getTransitHours(t).toFixed(1)}h)`).join(', ')}</td></tr>` : ''}
+        `).join('')}
+        <tr style="background:var(--bg-secondary)">
+          <td colspan="4"><b>TOTAL</b></td>
+          <td class="td-mono"><b>${fmtINR(data.fixedTotal)}</b></td>
+          <td class="td-mono"><b>${fmtINR(data.variableTotal)}</b></td>
+          <td class="td-mono"><b>${fmtINR(data.fastagTotal)}</b></td>
+          <td class="td-mono"><b>${fmtINR(data.loadingTotal)}</b></td>
+          <td class="td-mono text-red"><b>${fmtINR(data.deductions)}</b></td>
+          <td class="td-mono text-green" style="font-size:16px"><b>${fmtINR(data.total)}</b></td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="flex justify-between items-center">
+      <div style="font-size:12px;color:var(--text-muted)">
+        ${cfg.bankDetails ? `<div><b>Payment:</b> ${cfg.bankDetails}</div>` : ''}
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:12px;color:var(--text-muted)">Grand Total</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:28px;font-weight:500;color:var(--accent-green)">${fmtINR(data.total)}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// Store current invoice data for save
+let _currentInvoiceData = null;
+function previewInvoice() {
+  const cid = getValue('inv-cycle');
+  const invNum = getValue('inv-number');
+  if (!cid) { toast('Select billing cycle!', 'error'); return; }
+  _currentInvoiceData = buildInvoiceData(cid, invNum);
+  if (!_currentInvoiceData) return;
+  const area = document.getElementById('invoice-preview-area');
+  area.innerHTML = buildInvoiceHTML(_currentInvoiceData, true);
+}
+function updateInvRow(input, field, vehicleId) {
+  // Allow manual overrides in the preview (they update _currentInvoiceData)
+  if (!_currentInvoiceData) return;
+  const row = _currentInvoiceData.vehRows.find(r => r.vehicleId === vehicleId);
+  if (!row) return;
+  const val = Number(input.value)||0;
+  if (field === 'loadingTotal') { row.loadingAmt = val; row.unloadingAmt = 0; }
+  else row[field] = val;
+  row.subtotal = row.fixedAmt + row.variableAmt + row.fastagAmt + row.loadingAmt + row.unloadingAmt - row.transitDeduction;
+  document.getElementById('row-sub-'+vehicleId).textContent = fmtINR(row.subtotal);
+  // Recalculate totals
+  _currentInvoiceData.fixedTotal = _currentInvoiceData.vehRows.reduce((s,r) => s+r.fixedAmt,0);
+  _currentInvoiceData.variableTotal = _currentInvoiceData.vehRows.reduce((s,r) => s+r.variableAmt,0);
+  _currentInvoiceData.fastagTotal = _currentInvoiceData.vehRows.reduce((s,r) => s+r.fastagAmt,0);
+  _currentInvoiceData.loadingTotal = _currentInvoiceData.vehRows.reduce((s,r) => s+(r.loadingAmt+r.unloadingAmt),0);
+  _currentInvoiceData.deductions = _currentInvoiceData.vehRows.reduce((s,r) => s+r.transitDeduction,0);
+  _currentInvoiceData.total = _currentInvoiceData.vehRows.reduce((s,r) => s+r.subtotal,0);
+}
+async function saveInvoice() {
+  if (!_currentInvoiceData) { previewInvoice(); toast('Preview first, then save.','info'); return; }
+  const id = 'INV' + uid();
+  await window._dbSet(window._dbRef(window._db, 'invoices/' + id), _currentInvoiceData);
+  closeModal('modal-billing');
+  toast('Invoice saved!', 'success');
+}
+async function deleteInvoice(id) {
+  if (!confirm('Delete this invoice?')) return;
+  await window._dbRemove(window._dbRef(window._db, 'invoices/' + id));
+  toast('Invoice deleted.', 'info');
+}
+function viewInvoice(id) {
+  const inv = STATE.invoices[id];
+  if (!inv) return;
+  document.getElementById('invoice-view-body').innerHTML = buildInvoiceHTML(inv, false);
+  openModal('modal-invoice-view');
+}
+function printInvoice() { window.print(); }
+
+// ==================== REPORTS ====================
+function renderReports() {
+  const content = document.getElementById('reports-content');
+  const expenses = Object.values(STATE.expenses);
+  const trips = Object.values(STATE.trips);
+  // Group by month
+  const byMonth = {};
+  expenses.forEach(e => {
+    const m = (e.date||'').substr(0,7);
+    if (!m) return;
+    if (!byMonth[m]) byMonth[m] = { exp: 0, types: {} };
+    byMonth[m].exp += Number(e.amount||0);
+    byMonth[m].types[e.type] = (byMonth[m].types[e.type]||0) + Number(e.amount||0);
+  });
+  const months = Object.keys(byMonth).sort().reverse();
+  content.innerHTML = `
+    <div class="grid-2 mb-16">
+      <div class="card">
+        <div class="card-title"><span class="dot" style="background:var(--accent-purple)"></span>Monthly Expense Summary</div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Month</th><th>Total Expense</th><th>Top Category</th><th>Trips</th></tr></thead>
+          <tbody>${months.map(m => {
+            const topCat = Object.entries(byMonth[m].types).sort((a,b)=>b[1]-a[1])[0];
+            const mTrips = trips.filter(t => (t.docRecv||'').startsWith(m)).length;
+            const [y,mo] = m.split('-');
+            return `<tr>
+              <td><b>${new Date(y,mo-1).toLocaleString('default',{month:'long',year:'numeric'})}</b></td>
+              <td class="td-mono text-amber">${fmtINR(byMonth[m].exp)}</td>
+              <td>${topCat ? EXP_LABELS[topCat[0]]||topCat[0]+' — '+fmtINR(topCat[1]) : '—'}</td>
+              <td>${mTrips}</td>
+            </tr>`;
+          }).join('')||'<tr><td colspan="4" class="text-muted text-center">No data.</td></tr>'}</tbody>
+        </table></div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="dot" style="background:var(--accent-teal)"></span>Fleet Utilization</div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Vehicle</th><th>Total Trips</th><th>Total KM</th><th>Total Expense</th><th>Status</th></tr></thead>
+          <tbody>${getVehicleArr().map(v => {
+            const vTrips = trips.filter(t => t.vehicleId === v.id);
+            const vKm = vTrips.reduce((s,t) => s+Number(t.km||0),0);
+            const vExp = expenses.filter(e => e.vehicleId === v.id).reduce((s,e) => s+Number(e.amount||0),0);
+            const statusColor = v.status==='active'?'green':v.status==='maintenance'?'amber':'teal';
+            return `<tr>
+              <td><b>${v.number}</b><br><span class="text-muted" style="font-size:11px">${v.name||''}</span></td>
+              <td>${vTrips.length}</td>
+              <td class="td-mono">${fmtNum(vKm)} km</td>
+              <td class="td-mono text-amber">${fmtINR(vExp)}</td>
+              <td><span class="badge badge-${statusColor}">${v.status||'active'}</span></td>
+            </tr>`;
+          }).join('')||'<tr><td colspan="5" class="text-muted text-center">No vehicles.</td></tr>'}</tbody>
+        </table></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--accent-amber)"></span>Expense Type Analysis (All Time)</div>
+      <div class="grid-3">
+        ${Object.keys(EXP_LABELS).map(type => {
+          const amt = expenses.filter(e=>e.type===type).reduce((s,e)=>s+Number(e.amount||0),0);
+          const count = expenses.filter(e=>e.type===type).length;
+          if (!amt) return '';
+          return `<div style="background:var(--bg-secondary);padding:14px;border-radius:var(--radius-sm);border:1px solid var(--border)">
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">${EXP_LABELS[type]}</div>
+            <div class="td-mono text-amber" style="font-size:18px">${fmtINR(amt)}</div>
+            <div style="font-size:11px;color:var(--text-muted)">${count} entries</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+}
+
+// Close modal on overlay click
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
+});
+
+updateTopbarDate();
+</script>
+</body>
+</html>
